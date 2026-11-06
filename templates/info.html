@@ -7,20 +7,20 @@
         <div class="col">
           <div class="page-pretitle">Overview</div>
           <div class="d-flex align-items-center gap-3 flex-wrap d-none d-md-flex">
-            <h2 class="page-title mb-0">Info Management</h2>
+            <h2 class="page-title mb-0">Seed Distribution</h2>
           </div>
-          <h2 class="page-title mb-0 d-md-none">Info Management</h2>
+          <h2 class="page-title mb-0 d-md-none">Seed Distribution</h2>
         </div>
       </div>
     </div>
   </div>
   <br>
 
-  <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-2 mb-1">
+  <div class="d-flex flex-column flex-md-row align-items-start align-items-md-end justify-content-between gap-2 mb-1">
     <form method="GET" class="w-100" style="max-width: 420px;">
       <div class="input-group">
-        <span class="input-group-text"><i class="ti ti-search"></i></span>
-        <input type="text" name="q" value="{{ query }}" class="form-control" placeholder="Search by name, address, or email...">
+        <span class="input-group-text"><i class="fas fa-search"></i></span>
+        <input type="text" name="q" value="{{ query }}" class="form-control" placeholder="Search by recipient, address, or email...">
         {% if query %}
         <a href="{% url 'info:info_list' %}" class="btn btn-outline-secondary">Clear</a>
         {% endif %}
@@ -29,7 +29,7 @@
     </form>
 
     <button type="button" class="btn btn-primary mt-n4" data-bs-toggle="modal" data-bs-target="#infoModal" data-mode="create">
-      <i class='fas fa-plus-circle me-2'></i> Add Info
+      <i class='fas fa-plus-circle me-2'></i> Add Distribution
     </button>
   </div>
 
@@ -49,7 +49,7 @@
   <div class="card">
     <div class="card-header">
       <div class="card-title">
-        All Records
+        Distribution Records
         {% if query %}
         <span class="text-muted fw-normal">— search results for "{{ query }}"</span>
         {% endif %}
@@ -60,10 +60,12 @@
         <thead>
           <tr>
             <th>#</th>
-            <th>Name</th>
+            <th>Recipient</th>
             <th>Age</th>
             <th>Address</th>
             <th>Email</th>
+            <th>Seed Issued</th>
+            <th>Quantity</th>
             <th class="w-1">Actions</th>
           </tr>
         </thead>
@@ -76,8 +78,23 @@
             <td class="text-muted">{{ info.address }}</td>
             <td class="text-muted">{{ info.email|default:"—" }}</td>
             <td>
+              {% if info.seed %}
+              <span class="fw-semibold">{{ info.seed.seed_name }}</span>
+              {% if info.seed.variety %}<span class="text-muted">{{ info.seed.variety }}</span>{% endif %}
+              {% else %}
+              <span class="text-muted">—</span>
+              {% endif %}
+            </td>
+            <td>
+              {% if info.seed %}
+              <span class="badge bg-green-lt">{{ info.quantity_issued }} {{ info.seed.unit }}</span>
+              {% else %}
+              <span class="text-muted">—</span>
+              {% endif %}
+            </td>
+            <td>
               <div class="d-flex gap-1">
-                <button type="button" class="btn btn-ghost-secondary btn-icon btn-sm" data-bs-toggle="modal" data-bs-target="#infoModal" data-mode="edit" data-id="{{ info.id }}" data-name="{{ info.name }}" data-age="{{ info.age }}" data-address="{{ info.address }}" data-email="{{ info.email }}" title="Edit">
+                <button type="button" class="btn btn-ghost-secondary btn-icon btn-sm" data-bs-toggle="modal" data-bs-target="#infoModal" data-mode="edit" data-id="{{ info.id }}" data-name="{{ info.name }}" data-age="{{ info.age }}" data-address="{{ info.address }}" data-email="{{ info.email }}" data-seed="{{ info.seed_id|default:'' }}" data-quantity-issued="{{ info.quantity_issued }}" title="Edit">
                   <i class="fas fa-edit text-primary"></i>
                 </button>
                 <button type="button" class="btn btn-ghost-secondary btn-icon btn-sm" data-bs-toggle="modal" data-bs-target="#deleteInfoModal" data-id="{{ info.id }}" data-name="{{ info.name }}" title="Delete">
@@ -88,16 +105,16 @@
         </tr>
         {% empty %}
         <tr>
-            <td colspan="6">
+            <td colspan="8">
                 <div class="empty py-5">
                     <div class="empty-icon">
-                        <i class="fas fa-address-card fa-2x text-muted"></i>
+                        <i class="fas fa-seedling fa-2x text-muted"></i>
                     </div>
-                    <p class="empty-title">No records found</p>
-                    <p class="empty-subtitle">Try adjusting your search or add a new record.</p>
+                    <p class="empty-title">No distributions recorded</p>
+                    <p class="empty-subtitle">Try adjusting your search or add a new distribution.</p>
                     <div class="empty-action">
                         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#infoModal" data-mode="create">
-                            <i class="fas fa-plus-circle me-2"></i> Add Info
+                            <i class="fas fa-plus-circle me-2"></i> Add Distribution
                         </button>
                     </div>
                 </div>
@@ -145,7 +162,7 @@
   <div class="modal-dialog modal-md modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="infoModalTitle">Add Info</h5>
+        <h5 class="modal-title" id="infoModalTitle">Add Distribution</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <form id="infoForm">
@@ -155,7 +172,7 @@
           <div id="infoFormError" class="alert alert-danger d-none"></div>
           <div class="row g-3">
             <div class="col-12">
-              <label class="form-label">Name</label>
+              <label class="form-label">Recipient Name</label>
               <input type="text" name="name" id="info_name" class="form-control" required>
             </div>
             <div class="col-12">
@@ -170,11 +187,31 @@
               <label class="form-label">Email <span class="text-muted">(optional)</span></label>
               <input type="email" name="email" id="info_email" class="form-control">
             </div>
+            <div class="col-12">
+              <div class="hr-text my-1">Seeds issued</div>
+            </div>
+            <div class="col-12">
+              <label class="form-label">Seed</label>
+              <select name="seed" id="info_seed" class="form-select">
+                <option value="">No seed linked</option>
+                {% for seed in seeds %}
+                <option value="{{ seed.pk }}">{{ seed.seed_name }}{% if seed.variety %} {{ seed.variety }}{% endif %} — {{ seed.quantity }} {{ seed.unit }} in stock</option>
+                {% empty %}
+                <option value="" disabled>No seeds in the inventory yet</option>
+                {% endfor %}
+              </select>
+              <div class="form-hint">Pick the inventory item this recipient received.</div>
+            </div>
+            <div class="col-12">
+              <label class="form-label">Quantity Issued</label>
+              <input type="number" name="quantity_issued" id="info_quantity_issued" class="form-control" min="1" step="1" value="0">
+              <div class="form-hint">Recorded against the seed you select above.</div>
+            </div>
           </div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-ghost-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button type="submit" class="btn btn-primary" id="infoSubmitBtn">Save Info</button>
+          <button type="submit" class="btn btn-primary" id="infoSubmitBtn">Save Distribution</button>
         </div>
       </form>
     </div>
@@ -185,7 +222,7 @@
   <div class="modal-dialog modal-sm modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Delete Info</h5>
+        <h5 class="modal-title">Delete Distribution</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
@@ -211,19 +248,29 @@
   const submitBtn = document.getElementById('infoSubmitBtn');
   const deleteBtn = document.getElementById('confirmDeleteInfoBtn');
   const deleteName = document.getElementById('deleteInfoName');
+  const seedSelect = document.getElementById('info_seed');
+  const quantityInput = document.getElementById('info_quantity_issued');
+  const deleteUrl = '{% url "info:info_delete_ajax" pk=0 %}';
   let currentInfoId = null;
 
   document.querySelectorAll('#infoToastContainer .toast').forEach(function(toastEl) {
     bootstrap.Toast.getOrCreateInstance(toastEl).show();
   });
 
+  function syncQuantityState() {
+    quantityInput.disabled = seedSelect.value === '';
+  }
+
+  seedSelect.addEventListener('change', syncQuantityState);
+
   function resetForm() {
     form.reset();
     document.getElementById('info_id').value = '';
-    title.textContent = 'Add Info';
-    submitBtn.textContent = 'Save Info';
+    title.textContent = 'Add Distribution';
+    submitBtn.textContent = 'Save Distribution';
     alertBox.classList.add('d-none');
     alertBox.textContent = '';
+    syncQuantityState();
     currentInfoId = null;
   }
 
@@ -237,14 +284,17 @@
     const mode = button.getAttribute('data-mode');
     if (mode === 'edit') {
       const id = button.getAttribute('data-id');
-      title.textContent = 'Edit Info';
-      submitBtn.textContent = 'Update Info';
+      title.textContent = 'Edit Distribution';
+      submitBtn.textContent = 'Update Distribution';
       currentInfoId = id;
       document.getElementById('info_id').value = id;
       document.getElementById('info_name').value = button.getAttribute('data-name');
       document.getElementById('info_age').value = button.getAttribute('data-age');
       document.getElementById('info_address').value = button.getAttribute('data-address');
       document.getElementById('info_email').value = button.getAttribute('data-email');
+      seedSelect.value = button.getAttribute('data-seed') || '';
+      quantityInput.value = button.getAttribute('data-quantity-issued') || '0';
+      syncQuantityState();
     } else {
       resetForm();
     }
@@ -284,7 +334,7 @@
 
   deleteBtn.addEventListener('click', function() {
     if (!currentInfoId) return;
-    fetch('/info/ajax/delete/' + currentInfoId + '/', {
+    fetch(deleteUrl.replace('/0/', '/' + currentInfoId + '/'), {
       method: 'POST',
       headers: {'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value}
     })
@@ -295,6 +345,8 @@
       }
     });
   });
+
+  syncQuantityState();
 })();
 </script>
 {% endblock %}

@@ -6,8 +6,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta http-equiv="X-UA-Compatible" content="ie=edge" />
   <title>
-    Sign in - Azuelo Technology
+    Sign in - SeedVault
   </title>
+  <link rel="icon" href="{% static 'img/favicon.svg' %}" type="image/svg+xml" />
+  <link rel="alternate icon" href="{% static 'img/favicon.ico' %}" type="image/x-icon" />
+  <link rel="apple-touch-icon" href="{% static 'img/favicon-180.png' %}" />
   <link href="{% static 'libs/jsvectormap/dist/jsvectormap.css' %}" rel="stylesheet" />
   <link href="{% static 'css/tabler.css' %}" rel="stylesheet" />
   <link href="{% static 'css/tabler-flags.css' %}" rel="stylesheet" />
@@ -16,20 +19,31 @@
   <link href="{% static 'css/tabler-vendors.css' %}" rel="stylesheet" />
   <link href="{% static 'css/tabler-marketing.css' %}" rel="stylesheet" />
   <link href="{% static 'css/tabler-themes.css' %}" rel="stylesheet" />
+  <link href="{% static 'css/app-theme.css' %}?v=20261106l" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+      @import url("https://rsms.me/inter/inter.css");
+  </style>
 </head>
 
 <body>
-  <script src="{% static 'js/tabler-theme.js' %}"></script>
-  <div class="page page-center">
-    <div class="container container-tight py-4">
+  <script src="{% static 'js/tabler-theme.js' %}?v=20261106i"></script>
+  <div class="sv-auth">
+    {% include 'auth/_scene.html' %}
+
+    <section class="sv-auth-form">
+      <div class="container container-tight py-4">
 
      <div class="card card-md">
       <div class="card-body">
 
-        <center class="mt-n4">
-        <i class='far fa-calendar' style='font-size:40px'></i>
-        </center>
+        <div class="sv-auth-mark">
+          <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round">
+            <path d="M32 58V33"/>
+            <path d="M32 36C18 36 12 27 12 14c13 0 20 8 20 22z" fill="currentColor" stroke="none"/>
+            <path d="M32 36c14 0 20-9 20-22-13 0-20 8-20 22z" fill="currentColor" stroke="none"/>
+          </svg>
+        </div>
         <h2 class="h3 text-center mb-4">Sign in to start your session</h2>
 
         <form method="post">
@@ -54,25 +68,27 @@
               <input type="password" class="form-control" name="password" autocomplete="off" {% if locked %}disabled{% endif %}>
             </div>
           </div>
-          <div class="form-footer d-flex justify-content-end">
-            <button type="submit" class="btn btn-primary w-50">
-              <i class="fas fa-sign-in-alt me-1"></i> Sign in
+          <div class="form-footer">
+            <button type="submit" class="btn btn-primary w-100">
+              <i class="fas fa-right-to-bracket me-1"></i> Sign in
             </button>
           </div>
        </form>
      </div>
    </div>
- </div>
+
  <div class="text-center text-secondary mt-3">
   Don't have an account?
   <a href="{% url 'register' %}" class="text-primary fw-bold">Register</a>
  </div>
-</div>
+ </div>
+    </section>
+  </div>
 
 {% include 'theme/settings.html' %}
 
 <script src="{% static 'js/tabler.js' %}" defer></script>
-<script src="{% static 'js/demo.js' %}" defer></script>
+<script src="{% static 'js/auth-scene.js' %}?v=20261106h" defer></script>
 {% if locked %}
 <script>
   let remaining = {{ remaining }};
@@ -92,68 +108,5 @@
   }, 1000);
 </script>
 {% endif %}
-<script>
-  document.addEventListener("DOMContentLoaded", function () {
-    var themeConfig = {
-      theme: "light",
-      "theme-base": "gray",
-      "theme-font": "sans-serif",
-      "theme-primary": "blue",
-      "theme-radius": "1",
-    };
-
-    var url = new URL(window.location);
-    var form = document.getElementById("offcanvasSettings");
-    var resetButton = document.getElementById("reset-changes");
-
-    var checkItems = function () {
-      for (var key in themeConfig) {
-        var value =
-        window.localStorage["tabler-" + key] || themeConfig[key];
-
-        if (!!value) {
-          var radios = form.querySelectorAll(`[name="${key}"]`);
-
-          if (!!radios) {
-            radios.forEach((radio) => {
-              radio.checked = radio.value === value;
-            });
-          }
-        }
-      }
-    };
-
-    form.addEventListener("change", function (event) {
-      var target = event.target,
-      name = target.name,
-      value = target.value;
-
-      for (var key in themeConfig) {
-        if (name === key) {
-          document.documentElement.setAttribute("data-bs-" + key, value);
-          window.localStorage.setItem("tabler-" + key, value);
-          url.searchParams.set(key, value);
-        }
-      }
-
-      window.history.pushState({}, "", url);
-    });
-
-    resetButton.addEventListener("click", function () {
-      for (var key in themeConfig) {
-        var value = themeConfig[key];
-        document.documentElement.removeAttribute("data-bs-" + key);
-        window.localStorage.removeItem("tabler-" + key);
-        url.searchParams.delete(key);
-      }
-
-      checkItems();
-
-      window.history.pushState({}, "", url);
-    });
-
-    checkItems();
-  });
-</script>
 </body>
 </html>

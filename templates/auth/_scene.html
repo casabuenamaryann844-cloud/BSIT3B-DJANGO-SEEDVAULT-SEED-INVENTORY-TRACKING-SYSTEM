@@ -1,0 +1,75 @@
+{% load static %}
+<section class="sv-auth-art">
+  <div class="sv-art-inner">
+    <span class="sv-wordmark">Seed<span>Vault</span></span>
+    <p class="sv-tagline">Seed Inventory &amp; Tracking System</p>
+
+    <div class="sv-scene" id="sv-scene" aria-hidden="true">
+      <div class="sv-tilt" id="sv-tilt">
+
+        <div class="sv-shelf">
+          <span class="sv-shelf-back"></span>
+          <span class="sv-shelf-top"></span>
+          <span class="sv-contact sv-contact--back"></span>
+          <span class="sv-shelf-lip"></span>
+          <span class="sv-contact sv-contact--front"></span>
+        </div>
+
+        <div class="sv-box sv-box--back">
+          <span class="sv-face sv-face--front sv-face--printed">
+            <span class="sv-print-band"></span>
+            <span class="sv-print-category">{{ scene_taxonomy.back.category }}</span>
+            <span class="sv-print-window">
+              <svg class="sv-sprout" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round">
+                <path d="M32 58V33"/>
+                <path d="M32 36C18 36 12 27 12 14c13 0 20 8 20 22z" fill="currentColor" stroke="none"/>
+                <path d="M32 36c14 0 20-9 20-22-13 0-20 8-20 22z" fill="currentColor" stroke="none"/>
+              </svg>
+            </span>
+            <span class="sv-print-rules"><i></i></span>
+            <span class="sv-print-contents">{{ scene_taxonomy.back.unit }}</span>
+          </span>
+          <span class="sv-face sv-face--back"></span>
+          <span class="sv-face sv-face--left"></span>
+          <span class="sv-face sv-face--right"></span>
+          <span class="sv-face sv-face--top"></span>
+          <span class="sv-face sv-face--bottom"></span>
+        </div>
+
+        <div class="sv-box sv-box--front">
+          <span class="sv-face sv-face--front sv-face--printed">
+            <span class="sv-print-band"></span>
+            <span class="sv-print-category">{{ scene_taxonomy.front.category }}</span>
+            <span class="sv-print-window">
+              <svg class="sv-sprout" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round">
+                <path d="M32 58V33"/>
+                <path d="M32 36C18 36 12 27 12 14c13 0 20 8 20 22z" fill="currentColor" stroke="none"/>
+                <path d="M32 36c14 0 20-9 20-22-13 0-20 8-20 22z" fill="currentColor" stroke="none"/>
+              </svg>
+            </span>
+            <span class="sv-print-rules"><i></i><i></i></span>
+            <span class="sv-print-contents">{{ scene_taxonomy.front.unit }}</span>
+            <span class="sv-print-code"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>
+            <span class="sv-print-lot">USE WITHIN {{ scene_taxonomy.expiry_window_days }} DAYS</span>
+          </span>
+          <span class="sv-face sv-face--back"></span>
+          <span class="sv-face sv-face--left"></span>
+          <span class="sv-face sv-face--right"></span>
+          <span class="sv-face sv-face--top"></span>
+          <span class="sv-face sv-face--bottom"></span>
+        </div>
+
+      </div>
+    </div>
+
+    <p class="sv-taxonomy">
+      {% for category in scene_taxonomy.categories %}<span>{{ category }}</span>{% endfor %}
+    </p>
+
+    <ul class="sv-features">
+      <li><i class="fas fa-boxes-packing"></i> Stock levels per variety and cabinet</li>
+      <li><i class="fas fa-hourglass-half"></i> Expiry and viability alerts</li>
+      <li><i class="fas fa-file-arrow-down"></i> Search, filter and CSV export</li>
+    </ul>
+  </div>
+</section>

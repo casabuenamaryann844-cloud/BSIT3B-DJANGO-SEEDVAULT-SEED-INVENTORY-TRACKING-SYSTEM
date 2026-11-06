@@ -9,10 +9,11 @@
   />
   <meta http-equiv="X-UA-Compatible" content="ie=edge" />
   <title>
-    Register - Azuelo Technology
+    Register - SeedVault
 </title>
-<link rel="icon" href="./favicon-dev.ico" type="image/x-icon" />
-<link rel="shortcut icon" href="./favicon-dev.ico" type="image/x-icon" />
+<link rel="icon" href="{% static 'img/favicon.svg' %}" type="image/svg+xml" />
+<link rel="alternate icon" href="{% static 'img/favicon.ico' %}" type="image/x-icon" />
+<link rel="apple-touch-icon" href="{% static 'img/favicon-180.png' %}" />
 <link
 href="{% static 'libs/jsvectormap/dist/jsvectormap.css' %}"
 rel="stylesheet"
@@ -24,26 +25,29 @@ rel="stylesheet"
 <link href="{% static 'css/tabler-vendors.css' %}" rel="stylesheet" />
 <link href="{% static 'css/tabler-marketing.css' %}" rel="stylesheet" />
 <link href="{% static 'css/tabler-themes.css' %}" rel="stylesheet" />
+<link href="{% static 'css/app-theme.css' %}?v=20261106l" rel="stylesheet" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <style>
     @import url("https://rsms.me/inter/inter.css");
 </style>
 </head>
 <body class="antialiased">
-    <script src="{% static 'js/tabler-theme.js' %}"></script>
-    <div class="page page-center">
+    <script src="{% static 'js/tabler-theme.js' %}?v=20261106i"></script>
+    <div class="sv-auth">
+      {% include 'auth/_scene.html' %}
+      <section class="sv-auth-form">
         <div class="container container-tight py-4">
-
-            <!-- Logo / Brand -->
-            <center class="mb-2">
-                <span class="fw-bold fs-1 text-body">
-                  Seed<span class="text-primary">Vault</span>
-              </span>
-          </center>
 
           <div class="card card-md">
             <div class="card-body">
 
+                <div class="sv-auth-mark">
+                  <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round">
+                    <path d="M32 58V33"/>
+                    <path d="M32 36C18 36 12 27 12 14c13 0 20 8 20 22z" fill="currentColor" stroke="none"/>
+                    <path d="M32 36c14 0 20-9 20-22-13 0-20 8-20 22z" fill="currentColor" stroke="none"/>
+                  </svg>
+                </div>
                 <h2 class="h2 text-center mb-4">Create your account</h2>
 
                 {% if errors %}
@@ -189,7 +193,7 @@ rel="stylesheet"
 {% include 'theme/settings.html' %}
 
 <script src="{% static 'js/tabler.js' %}" defer></script>
-<script src="{% static 'js/demo.js' %}" defer></script>
+<script src="{% static 'js/auth-scene.js' %}?v=20261106h" defer></script>
 <script>
     document.getElementById('togglePassword').addEventListener('click', function() {
         const input = document.getElementById('password');

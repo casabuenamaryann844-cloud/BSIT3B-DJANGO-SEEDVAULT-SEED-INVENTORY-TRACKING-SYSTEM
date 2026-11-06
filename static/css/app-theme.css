@@ -31,15 +31,15 @@
   --tblr-link-hover-color: var(--tblr-primary-active);
 }
 
+/* SeedVault's default accent is green. tabler-theme.js drops the data-bs-theme-primary
+   attribute when the stored value equals its own default, so this block, that script's
+   "theme-primary", and theme/settings.html's themeConfig must name the SAME colour —
+   otherwise the swatch a user picks is the one that silently stops applying. */
 :root:not([data-bs-theme-primary]),
-[data-bs-theme="light"]:not([data-bs-theme-primary]) {
-  --tblr-primary: #6366f1;
-  --tblr-primary-rgb: 99, 102, 241;
-}
-
+[data-bs-theme="light"]:not([data-bs-theme-primary]),
 [data-bs-theme="dark"]:not([data-bs-theme-primary]) {
-  --tblr-primary: #7c82f5;
-  --tblr-primary-rgb: 124, 130, 245;
+  --tblr-primary: #2fb344;
+  --tblr-primary-rgb: 47, 179, 68;
 }
 
 [data-bs-theme-primary="indigo"] {
@@ -749,4 +749,546 @@ html {
   left: auto;
   right: 1rem;
   bottom: 1rem;
+}
+/* ---------- Auth pages: seed-vault scene ---------- */
+/* Depth lives only on login/register. The inventory pages are dense data
+   tables; a flat surface keeps 56-row grids legible and cheap to paint. */
+.sv-auth {
+  --sv-primary: var(--tblr-primary, #2fb344);
+  --sv-paper: color-mix(in srgb, var(--sv-primary) 7%, #ffffff);
+  --sv-paper-shade: color-mix(in srgb, var(--sv-primary) 20%, #eef3ef);
+  --sv-edge: color-mix(in srgb, var(--sv-primary) 45%, #6f8a76);
+  --sv-ink: color-mix(in srgb, var(--sv-primary) 78%, #16241b);
+  --sv-fibre: rgba(255, 255, 255, .22);
+  display: flex;
+  min-height: 100vh;
+}
+
+[data-bs-theme="dark"] .sv-auth {
+  --sv-paper: color-mix(in srgb, var(--sv-primary) 9%, #232e27);
+  --sv-paper-shade: color-mix(in srgb, var(--sv-primary) 20%, #2b3830);
+  --sv-edge: color-mix(in srgb, var(--sv-primary) 42%, #16211b);
+  --sv-ink: color-mix(in srgb, var(--sv-primary) 55%, #e6f0e8);
+  /* The paper fibre overlay is a highlight; on a dark sachet it turns into
+     diagonal streaks, so it drops to a whisper. */
+  --sv-fibre: rgba(255, 255, 255, .03);
+}
+
+/* Register overflows the viewport while login does not, so the scrollbar appears
+   only on the second page and steals 15px of width from the pane. Reserve the
+   gutter on both. */
+html:has(.sv-auth) {
+  scrollbar-gutter: stable;
+}
+
+.sv-auth-art {
+  flex: 1 1 48%;
+  /* /register/ has a taller form column than /login/. If this pane stretches to
+     the row, the scene centres against a box taller than the screen and the model
+     drops sideways when the two pages are compared — so pin it to the viewport. */
+  position: sticky;
+  top: 0;
+  align-self: flex-start;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 2.5rem;
+  overflow: hidden;
+  border-inline-end: 1px solid var(--tblr-border-color);
+  background:
+    radial-gradient(90% 70% at 20% 15%,
+      color-mix(in srgb, var(--sv-primary) 22%, transparent) 0%, transparent 65%),
+    linear-gradient(155deg,
+      color-mix(in srgb, var(--sv-primary) 10%, transparent), transparent 50%),
+    var(--tblr-bg-surface-secondary);
+}
+
+/* The cabinet bay itself does the storage reading; a stripe pattern over the
+   whole panel just looks like wallpaper. */
+
+.sv-art-inner {
+  position: relative;
+  z-index: 1;
+  width: min(440px, 100%);
+}
+
+.sv-wordmark {
+  display: inline-block;
+  font-size: 1.6rem;
+  font-weight: 700;
+  letter-spacing: -.02em;
+  color: var(--sv-ink);
+  text-decoration: none;
+}
+
+.sv-wordmark span {
+  color: var(--sv-primary);
+}
+
+.sv-tagline {
+  margin: .25rem 0 0;
+  font-size: .875rem;
+  color: var(--tblr-muted);
+}
+
+.sv-scene {
+  position: relative;
+  height: 300px;
+  margin: 1.75rem 0 1.5rem;
+  perspective: 1100px;
+  perspective-origin: 28% 42%;
+}
+
+.sv-tilt {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  /* Negative X looks down onto the packets, so the crimped seal is visible. */
+  transform: rotateX(var(--sv-rx, -9deg)) rotateY(var(--sv-ry, -21deg));
+  transition: transform .45s cubic-bezier(.22, .61, .36, 1);
+}
+
+/* ---------- shelf the packets stand on ---------- */
+.sv-shelf {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+}
+
+.sv-shelf-top {
+  position: absolute;
+  left: 50%;
+  bottom: 34px;
+  width: 316px;
+  height: 132px;
+  transform: translateX(-50%) rotateX(70deg);
+  transform-origin: bottom center;
+  background:
+    repeating-linear-gradient(to bottom,
+      transparent 0 17px,
+      color-mix(in srgb, var(--sv-edge) 34%, transparent) 17px 18px),
+    linear-gradient(to bottom,
+      color-mix(in srgb, var(--sv-edge) 20%, var(--sv-paper)) 0%,
+      color-mix(in srgb, var(--sv-edge) 46%, var(--sv-paper)) 100%);
+  border: 1px solid var(--sv-edge);
+  border-radius: 3px;
+  box-shadow: inset 0 14px 26px -18px rgba(0, 0, 0, .45);
+}
+
+/* Bay wall standing on the board's far edge: 132*cos70 up, 132*sin70 back.
+   It fades out upward so it reads as the shaded inside of a cabinet bay, not
+   as another card parked behind the packets. */
+.sv-shelf-back {
+  position: absolute;
+  left: 50%;
+  bottom: 79px;
+  width: 316px;
+  height: 96px;
+  transform: translateX(-50%) translateZ(-124px);
+  background: linear-gradient(to top,
+      color-mix(in srgb, var(--sv-edge) 28%, var(--sv-paper-shade)) 0%,
+      transparent 74%);
+}
+
+/* The board pivots on its near edge, so the front lip sits at that same line. */
+.sv-shelf-lip {
+  position: absolute;
+  left: 50%;
+  bottom: 18px;
+  width: 316px;
+  height: 16px;
+  transform: translateX(-50%);
+  border-radius: 0 0 3px 3px;
+  background: linear-gradient(to bottom,
+      color-mix(in srgb, var(--sv-edge) 58%, var(--sv-paper)) 0%,
+      color-mix(in srgb, var(--sv-edge) 88%, var(--sv-ink)) 100%);
+}
+
+/* Flattened into the board's plane, so each shadow lies on the shelf rather
+   than floating in front of it. */
+.sv-contact {
+  position: absolute;
+  height: 34px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, .46);
+  filter: blur(7px);
+  transform: rotateX(70deg);
+}
+
+.sv-contact--front {
+  left: 23%;
+  bottom: 24px;
+  width: 136px;
+}
+
+.sv-contact--back {
+  left: 56%;
+  bottom: 40px;
+  width: 110px;
+  opacity: .72;
+}
+
+/* ---------- the seed packet, six real faces ---------- */
+.sv-box {
+  position: absolute;
+  width: var(--sv-w);
+  height: var(--sv-h);
+  transform-style: preserve-3d;
+}
+
+.sv-box--front {
+  --sv-w: 128px;
+  --sv-h: 184px;
+  --sv-d: 38px;
+  left: 22%;
+  bottom: 41px;
+  transform: translateZ(-20px) rotateY(-6deg);
+}
+
+/* Deeper on the board: y rises by s*cos70, z recedes by s*sin70 (s = 66px). */
+.sv-box--back {
+  --sv-w: 104px;
+  --sv-h: 150px;
+  --sv-d: 30px;
+  left: 56%;
+  bottom: 57px;
+  transform: translateZ(-62px) rotateY(13deg);
+}
+
+.sv-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  border: 1px solid var(--sv-edge);
+  background: linear-gradient(148deg,
+      var(--sv-paper) 0%,
+      var(--sv-paper-shade) 100%);
+}
+
+.sv-face--front {
+  transform: translateZ(calc(var(--sv-d) / 2));
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .3);
+}
+
+.sv-face--back {
+  transform: rotateY(180deg) translateZ(calc(var(--sv-d) / 2));
+  filter: brightness(.8);
+}
+
+.sv-face--left,
+.sv-face--right {
+  width: var(--sv-d);
+  left: calc((var(--sv-w) - var(--sv-d)) / 2);
+}
+
+.sv-face--left {
+  transform: rotateY(-90deg) translateZ(calc(var(--sv-w) / 2));
+  filter: brightness(.72);
+}
+
+/* Light falls from the upper left-front, so the right face sits between them.
+   The printed band wraps around it, which is what a glued packet really does. */
+.sv-face--right {
+  transform: rotateY(90deg) translateZ(calc(var(--sv-w) / 2));
+  filter: brightness(.88);
+  background:
+    linear-gradient(to bottom,
+      var(--sv-primary) 0 30px,
+      transparent 30px),
+    linear-gradient(148deg, var(--sv-paper) 0%, var(--sv-paper-shade) 100%);
+}
+
+.sv-face--top,
+.sv-face--bottom {
+  height: var(--sv-d);
+  top: calc((var(--sv-h) - var(--sv-d)) / 2);
+}
+
+/* Crimped seal: crimp marks run across the fold, with the crease at the front. */
+.sv-face--top {
+  transform: rotateX(90deg) translateZ(calc(var(--sv-h) / 2));
+  background:
+    repeating-linear-gradient(90deg,
+      color-mix(in srgb, var(--sv-ink) 22%, transparent) 0 2px,
+      transparent 2px 7px),
+    linear-gradient(to bottom,
+      color-mix(in srgb, var(--sv-primary) 62%, #ffffff) 0%,
+      var(--sv-primary) 78%,
+      color-mix(in srgb, var(--sv-primary) 74%, var(--sv-ink)) 100%);
+}
+
+.sv-face--bottom {
+  transform: rotateX(-90deg) translateZ(calc(var(--sv-h) / 2));
+  filter: brightness(.58);
+}
+
+/* ---------- printing on the front face ---------- */
+.sv-face--printed {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow: hidden;
+  background:
+    repeating-linear-gradient(104deg,
+      var(--sv-fibre) 0 2px,
+      transparent 2px 9px),
+    linear-gradient(148deg, var(--sv-paper) 0%, var(--sv-paper-shade) 100%);
+}
+
+/* The stored packet is a smaller sachet, so its print scales down with it. */
+.sv-box--back .sv-print-band {
+  height: 24px;
+}
+
+.sv-box--back .sv-print-window {
+  margin-top: 12px;
+  width: 44px;
+  height: 44px;
+}
+
+.sv-box--back .sv-sprout {
+  width: 26px;
+  height: 26px;
+}
+
+.sv-box--back .sv-print-rules {
+  margin-top: 12px;
+  width: 62%;
+}
+
+.sv-print-band {
+  width: 100%;
+  height: 30px;
+  flex: none;
+  background: repeating-linear-gradient(90deg,
+      var(--sv-primary) 0 13px,
+      color-mix(in srgb, var(--sv-primary) 58%, #ffffff) 13px 26px);
+  border-bottom: 1px solid color-mix(in srgb, var(--sv-edge) 85%, transparent);
+}
+
+.sv-print-window {
+  margin-top: 15px;
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: color-mix(in srgb, var(--sv-primary) 12%, transparent);
+  border: 1px dashed var(--sv-edge);
+  color: var(--sv-primary);
+}
+
+.sv-sprout {
+  width: 34px;
+  height: 34px;
+}
+
+.sv-print-rules {
+  margin-top: 15px;
+  width: 70%;
+  display: grid;
+  gap: 6px;
+}
+
+.sv-print-rules i {
+  display: block;
+  height: 5px;
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--sv-ink) 42%, transparent);
+}
+
+.sv-print-rules i:last-child {
+  width: 58%;
+}
+
+/* Lot code strip - the barcode a packet actually carries. */
+.sv-print-code {
+  margin-top: auto;
+  margin-bottom: 5px;
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.sv-print-code i {
+  display: block;
+  width: 3px;
+  height: 16px;
+  background: color-mix(in srgb, var(--sv-ink) 72%, transparent);
+}
+
+.sv-print-code i:nth-child(2n) {
+  width: 2px;
+  height: 12px;
+}
+
+.sv-print-code i:nth-child(3n) {
+  height: 18px;
+}
+
+.sv-print-code i:nth-child(4n) {
+  width: 4px;
+}
+
+/* Printed vocabulary. The words come from SeedInventory.CATEGORY_CHOICES and
+   UNIT_CHOICES, so the packet says the same thing the inventory form says. */
+.sv-print-category {
+  margin-top: 8px;
+  flex: none;
+  font-size: 7px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--sv-ink) 66%, transparent);
+}
+
+.sv-print-contents {
+  margin-top: 9px;
+  flex: none;
+  font-size: 6px;
+  line-height: 1;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--sv-ink) 45%, transparent);
+}
+
+.sv-print-lot {
+  margin-bottom: 16px;
+  flex: none;
+  font-size: 5px;
+  line-height: 1;
+  letter-spacing: .14em;
+  color: color-mix(in srgb, var(--sv-ink) 55%, transparent);
+}
+
+.sv-box--back .sv-print-category {
+  margin-top: 7px;
+  font-size: 6px;
+}
+
+.sv-box--back .sv-print-contents {
+  margin-top: auto;
+  margin-bottom: 14px;
+  font-size: 5px;
+}
+
+/* The classification the app files every seed under. */
+.sv-taxonomy {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: .3rem .55rem;
+  margin: 0 0 1.15rem;
+  font-size: .6875rem;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--tblr-body-color) 48%, transparent);
+}
+
+.sv-taxonomy span + span::before {
+  content: "";
+  width: 3px;
+  height: 3px;
+  margin-right: .55rem;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: .55;
+}
+
+
+.sv-features {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: .6rem;
+}
+
+.sv-features li {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  font-size: .875rem;
+  color: var(--tblr-body-color);
+}
+
+.sv-features i {
+  width: 26px;
+  height: 26px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  font-size: .75rem;
+  color: var(--sv-primary);
+  background: color-mix(in srgb, var(--sv-primary) 14%, transparent);
+}
+
+.sv-auth-form {
+  flex: 1 1 52%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+}
+
+@media (max-width: 991.98px) {
+  .sv-auth {
+    display: block;
+    min-height: 0;
+  }
+
+  .sv-auth-art {
+    display: none;
+  }
+
+  .sv-auth-form {
+    min-height: 100vh;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sv-tilt {
+    transition: none;
+    transform: rotateX(4deg) rotateY(-14deg);
+  }
+}
+
+.sv-auth-mark {
+  display: none;
+  width: 54px;
+  height: 54px;
+  margin: 0 auto 1rem;
+  place-items: center;
+  border-radius: 14px;
+  color: var(--sv-primary);
+  background: color-mix(in srgb, var(--sv-primary) 14%, transparent);
+  border: 1px solid color-mix(in srgb, var(--sv-primary) 30%, transparent);
+}
+
+.sv-auth-mark svg {
+  width: 32px;
+  height: 32px;
+}
+
+@media (max-width: 991.98px) {
+  .sv-auth-mark {
+    display: grid;
+  }
+}
+
+/* Row actions. The Actions column is too narrow for Edit and Delete side by side,
+   so they wrap - and a solid button next to an outline one then reads as a crooked
+   pair. Stack them on purpose at equal width so both edges line up on every table. */
+.sv-row-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: .375rem;
+}
+
+.sv-row-actions .btn {
+  justify-content: center;
 }

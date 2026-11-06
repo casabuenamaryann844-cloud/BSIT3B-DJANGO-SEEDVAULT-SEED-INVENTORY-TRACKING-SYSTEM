@@ -157,8 +157,10 @@
                 </td>
                 <td class="text-secondary">{{ seed.date_added|date:"M d, Y" }}</td>
                 <td class="text-end">
-                  <a href="{% url 'inventory_edit' seed.pk %}" class="btn btn-sm btn-primary">Edit</a>
-                  <a href="{% url 'inventory_delete' seed.pk %}" class="btn btn-sm btn-outline-danger">Delete</a>
+                  <div class="sv-row-actions">
+                    <a href="{% url 'inventory_edit' seed.pk %}" class="btn btn-sm btn-primary">Edit</a>
+                    <a href="{% url 'inventory_delete' seed.pk %}" class="btn btn-sm btn-outline-danger">Delete</a>
+                  </div>
                 </td>
               </tr>
               {% empty %}
