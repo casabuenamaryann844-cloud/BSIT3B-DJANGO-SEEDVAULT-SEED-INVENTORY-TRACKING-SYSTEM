@@ -1,45 +1,208 @@
-
 {% extends "theme/base.html" %}
 
 {% block content %}
-<div class="container-fluid">
-    <div class="mb-4">
-        <h1 class="h2">{{ title|default:"Add Seed" }}</h1>
-        <p class="text-secondary">Enter the seed inventory details below.</p>
-    </div>
-
-    <div class="card">
-        <div class="card-body">
-            <form method="post">
-                {% csrf_token %}
-
-                {% if form.non_field_errors %}
-                    <div class="alert alert-danger">
-                        {{ form.non_field_errors }}
-                    </div>
-                {% endif %}
-
-                {% for field in form %}
-                    <div class="mb-3">
-                        <label class="form-label" for="{{ field.id_for_label }}">
-                            {{ field.label }}
-                        </label>
-                        {{ field }}
-                        {% if field.errors %}
-                            <div class="text-danger small">
-                                {{ field.errors }}
-                            </div>
-                        {% endif %}
-                    </div>
-                {% endfor %}
-
-                <button type="submit" class="btn btn-success">
-                    {{ submit_label|default:"Save Seed" }}
-                </button>
-                <a href="{% url 'inventory_list' %}"
-                   class="btn btn-secondary">Cancel</a>
-            </form>
+<div class="container-xl">
+  <!-- Page Header -->
+  <div class="page-header d-print-none mb-4">
+    <div class="row align-items-center">
+      <div class="col">
+        <div class="page-pretitle text-secondary">
+          <a href="{% url 'inventory_list' %}" class="text-secondary text-decoration-none">
+            <i class="fas fa-arrow-left me-1"></i> Back to Inventory
+          </a>
         </div>
+        <h2 class="page-title fs-1 fw-bold mt-1">
+          {% if "Edit" in title %}
+          <i class="fas fa-pen-to-square text-primary me-2"></i>{{ title }}
+          {% else %}
+          <i class="fas fa-plus-circle text-primary me-2"></i>{{ title|default:"Add New Seed" }}
+          {% endif %}
+        </h2>
+        <p class="text-secondary mb-0">Record and manage seed lot specifications in the SeedVault repository.</p>
+      </div>
     </div>
+  </div>
+
+  <form method="post" enctype="multipart/form-data" novalidate>
+    {% csrf_token %}
+
+    {% if form.non_field_errors %}
+      <div class="alert alert-danger shadow-sm mb-4">
+        <i class="fas fa-triangle-exclamation me-2"></i>
+        {{ form.non_field_errors }}
+      </div>
+    {% endif %}
+
+    <div class="row row-cards">
+      <!-- Left Column: Core Seed Specifications -->
+      <div class="col-lg-8">
+        <!-- Card 1: Identity & Classification -->
+        <div class="card border-0 shadow-sm mb-3">
+          <div class="card-header bg-transparent py-3">
+            <h3 class="card-title fw-bold">
+              <i class="fas fa-seedling text-success me-2"></i> Seed Identification
+            </h3>
+          </div>
+          <div class="card-body">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label required fw-semibold" for="{{ form.seed_name.id_for_label }}">
+                  Seed Name
+                </label>
+                {{ form.seed_name }}
+                {% if form.seed_name.errors %}
+                  <div class="text-danger small mt-1">{{ form.seed_name.errors }}</div>
+                {% endif %}
+                <small class="form-hint">E.g., Tomato, Rice, Eggplant, Corn</small>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label fw-semibold" for="{{ form.variety.id_for_label }}">
+                  Variety / Strain
+                </label>
+                {{ form.variety }}
+                {% if form.variety.errors %}
+                  <div class="text-danger small mt-1">{{ form.variety.errors }}</div>
+                {% endif %}
+                <small class="form-hint">E.g., Cherry Tomato, Dinorado, Diamante Max</small>
+              </div>
+
+              <div class="col-md-12">
+                <label class="form-label required fw-semibold" for="{{ form.category.id_for_label }}">
+                  Seed Category
+                </label>
+                {{ form.category }}
+                {% if form.category.errors %}
+                  <div class="text-danger small mt-1">{{ form.category.errors }}</div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 2: Stock, Storage & Longevity -->
+        <div class="card border-0 shadow-sm mb-3">
+          <div class="card-header bg-transparent py-3">
+            <h3 class="card-title fw-bold">
+              <i class="fas fa-boxes-packing text-primary me-2"></i> Stock &amp; Storage Details
+            </h3>
+          </div>
+          <div class="card-body">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label required fw-semibold" for="{{ form.quantity.id_for_label }}">
+                  Initial / Current Quantity
+                </label>
+                {{ form.quantity }}
+                {% if form.quantity.errors %}
+                  <div class="text-danger small mt-1">{{ form.quantity.errors }}</div>
+                {% endif %}
+                <small class="form-hint">Low stock alert triggers when quantity &le; 10</small>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label required fw-semibold" for="{{ form.unit.id_for_label }}">
+                  Unit of Measurement
+                </label>
+                {{ form.unit }}
+                {% if form.unit.errors %}
+                  <div class="text-danger small mt-1">{{ form.unit.errors }}</div>
+                {% endif %}
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label fw-semibold" for="{{ form.storage_location.id_for_label }}">
+                  Storage Location
+                </label>
+                {{ form.storage_location }}
+                {% if form.storage_location.errors %}
+                  <div class="text-danger small mt-1">{{ form.storage_location.errors }}</div>
+                {% endif %}
+                <small class="form-hint">E.g., Cold Room A, Shelf 2-B, Bin 104</small>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label fw-semibold" for="{{ form.expiration_date.id_for_label }}">
+                  Expiration Date
+                </label>
+                {{ form.expiration_date }}
+                {% if form.expiration_date.errors %}
+                  <div class="text-danger small mt-1">{{ form.expiration_date.errors }}</div>
+                {% endif %}
+                <small class="form-hint">Optional quality monitoring threshold</small>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 3: Notes -->
+        <div class="card border-0 shadow-sm">
+          <div class="card-header bg-transparent py-3">
+            <h3 class="card-title fw-bold">
+              <i class="fas fa-clipboard-list text-secondary me-2"></i> Field Notes &amp; Observations
+            </h3>
+          </div>
+          <div class="card-body">
+            {{ form.notes }}
+            {% if form.notes.errors %}
+              <div class="text-danger small mt-1">{{ form.notes.errors }}</div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Visual Photo Card & Action Controls -->
+      <div class="col-lg-4">
+        <!-- Seed Photo Card -->
+        <div class="card border-0 shadow-sm mb-3">
+          <div class="card-header bg-transparent py-3">
+            <h3 class="card-title fw-bold">
+              <i class="fas fa-camera text-info me-2"></i> Seed Photo
+            </h3>
+          </div>
+          <div class="card-body text-center">
+            <!-- Current Photo or Placeholder Preview -->
+            <div class="mb-3">
+              {% if form.instance.image %}
+                <div class="position-relative d-inline-block">
+                  <img src="{{ form.instance.image.url }}" alt="{{ form.instance.seed_name }}" class="rounded shadow border" style="width: 140px; height: 140px; object-fit: cover;">
+                  <span class="badge bg-success position-absolute bottom-0 end-0 m-1">Current</span>
+                </div>
+              {% else %}
+                <div class="rounded d-inline-flex align-items-center justify-content-center bg-green-lt text-green border border-2 border-dashed border-green" style="width: 130px; height: 130px;">
+                  <i class="fas fa-seedling fs-1"></i>
+                </div>
+                <div class="text-secondary small mt-2">No photo uploaded yet</div>
+              {% endif %}
+            </div>
+
+            <!-- Upload Input -->
+            <div class="text-start">
+              <label class="form-label fw-semibold" for="{{ form.image.id_for_label }}">
+                Upload New Photo
+              </label>
+              {{ form.image }}
+              {% if form.image.errors %}
+                <div class="text-danger small mt-1">{{ form.image.errors }}</div>
+              {% endif %}
+              <small class="form-hint">Accepted formats: JPG, PNG, WEBP. Helps staff quickly identify seed packets.</small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Card -->
+        <div class="card border-0 shadow-sm">
+          <div class="card-body">
+            <button type="submit" class="btn btn-primary w-100 py-2 fw-bold mb-2 shadow-sm">
+              <i class="fas fa-check-circle me-2"></i> {{ submit_label|default:"Save Seed Record" }}
+            </button>
+            <a href="{% url 'inventory_list' %}" class="btn btn-outline-secondary w-100 py-2">
+              <i class="fas fa-times me-2"></i> Cancel
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
 </div>
 {% endblock %}

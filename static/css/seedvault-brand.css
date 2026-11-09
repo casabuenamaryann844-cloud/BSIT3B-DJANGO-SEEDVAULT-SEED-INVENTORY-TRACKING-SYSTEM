@@ -1,0 +1,56 @@
+/* SeedVault interior brand cohesion — additive and reversible.
+   Echoes the login wordmark's two-tone identity (green "Seed" -> gold "Vault")
+   inside the admin shell. Uses the live theme tokens (--tblr-primary /
+   --tblr-accent) so it follows whichever of the 12 primary swatches is active.
+   Loaded AFTER app-theme.css; remove the <link> in theme/base.html to revert.
+   Deliberately scoped to page headers + chrome only: data tables, forms and
+   cards keep their flat, legible surfaces untouched. */
+
+/* Two-tone hairline under each page title, reproducing the green->gold wordmark.
+   Covers both header markups in use: h2.page-title and the inventory list's h1.h2.
+   The delete-confirm title is .text-danger; skip it so the accent never clashes. */
+.page-header .page-title:not(.text-danger),
+.page-header h1.h2 {
+  position: relative;
+  display: inline-block;
+  padding-bottom: 0.45rem;
+}
+
+.page-header .page-title:not(.text-danger)::after,
+.page-header h1.h2::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 2.75rem;
+  height: 3px;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--tblr-primary) 0%, var(--tblr-accent) 100%);
+}
+
+/* Brand-tinted text selection, so even highlighting reads as SeedVault. */
+.page-wrapper ::selection {
+  background: rgba(var(--tblr-primary-rgb), 0.22);
+  color: inherit;
+}
+
+/* Slim, brand-tinted scrollbar on the content pane (WebKit/Blink). Follows the
+   active primary swatch; falls back to the theme surface for the track. */
+.page-wrapper ::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+.page-wrapper ::-webkit-scrollbar-track {
+  background: var(--tblr-bg-surface-secondary);
+}
+
+.page-wrapper ::-webkit-scrollbar-thumb {
+  border-radius: 100rem;
+  border: 2px solid var(--tblr-bg-surface-secondary);
+  background: rgba(var(--tblr-primary-rgb), 0.45);
+}
+
+.page-wrapper ::-webkit-scrollbar-thumb:hover {
+  background: rgba(var(--tblr-primary-rgb), 0.7);
+}

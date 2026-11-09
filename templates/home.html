@@ -1,132 +1,190 @@
 {% extends "theme/base.html" %}
+{% load static %}
 
 {% block content %}
 <div class="container-xl">
 
-  <div class="page-header d-print-none">
+  <div class="page-header d-print-none mb-3">
     <div class="row align-items-center">
       <div class="col">
-        <h2 class="page-title">Dashboard</h2>
+        <div class="page-pretitle text-secondary">SeedVault Management</div>
+        <h2 class="page-title fs-1 fw-bold">Dashboard</h2>
       </div>
       <div class="col-auto ms-auto d-print-none">
         <div class="btn-list">
-          <a href="{% url 'inventory_reports' %}" class="btn btn-outline-secondary d-none d-sm-inline-block">
-            <i class="nav-icon fas fa-chart-pie me-1"></i> Reports
+          <a href="{% url 'inventory_reports' %}" class="btn btn-outline-secondary d-none d-sm-inline-flex align-items-center">
+            <i class="fas fa-chart-pie me-2 text-primary"></i> Reports
           </a>
-          <a href="{% url 'inventory_create' %}" class="btn btn-primary">
-            <i class="nav-icon fas fa-plus me-1"></i> Add Seed
+          <a href="{% url 'inventory_create' %}" class="btn btn-primary d-inline-flex align-items-center shadow-sm">
+            <i class="fas fa-plus me-2"></i> Add Seed
           </a>
         </div>
       </div>
     </div>
   </div>
 
-  <div class="row row-cards">
+  <!-- 4 PRIMARY KPI METRIC CARDS -->
+  <div class="row row-cards mb-3">
+    <!-- Total Records -->
     <div class="col-sm-6 col-lg-3">
-      <div class="card">
+      <div class="card card-sm border-0 shadow-sm" style="border-top: 3.5px solid #38bdf8 !important;">
         <div class="card-body">
-          <div class="text-secondary">Total Records</div>
-          <div class="h1 mb-0">{{ total_records }}</div>
+          <div class="d-flex align-items-center justify-content-between">
+            <div>
+              <div class="text-secondary small fw-semibold text-uppercase">Total Records</div>
+              <div class="h1 mb-0 mt-1 fw-bold">{{ total_records }}</div>
+            </div>
+            <span class="avatar avatar-md rounded-circle bg-azure-lt text-azure">
+              <i class="fas fa-database fs-3"></i>
+            </span>
+          </div>
         </div>
       </div>
     </div>
+
+    <!-- Available -->
     <div class="col-sm-6 col-lg-3">
-      <div class="card">
+      <div class="card card-sm border-0 shadow-sm" style="border-top: 3.5px solid #22c55e !important;">
         <div class="card-body">
-          <div class="text-secondary">Available</div>
-          <div class="h1 mb-0 text-success">{{ available }}</div>
+          <div class="d-flex align-items-center justify-content-between">
+            <div>
+              <div class="text-secondary small fw-semibold text-uppercase">Available</div>
+              <div class="h1 mb-0 mt-1 fw-bold text-success">{{ available }}</div>
+            </div>
+            <span class="avatar avatar-md rounded-circle bg-green-lt text-green">
+              <i class="fas fa-seedling fs-3"></i>
+            </span>
+          </div>
         </div>
       </div>
     </div>
+
+    <!-- Low Stock -->
     <div class="col-sm-6 col-lg-3">
-      <div class="card">
+      <div class="card card-sm border-0 shadow-sm" style="border-top: 3.5px solid #f59e0b !important;">
         <div class="card-body">
-          <div class="text-secondary">Low Stock</div>
-          <div class="h1 mb-0 text-warning">{{ low_stock }}</div>
+          <div class="d-flex align-items-center justify-content-between">
+            <div>
+              <div class="text-secondary small fw-semibold text-uppercase">Low Stock (≤ 10)</div>
+              <div class="h1 mb-0 mt-1 fw-bold text-warning">{{ low_stock }}</div>
+            </div>
+            <span class="avatar avatar-md rounded-circle bg-warning-lt text-warning">
+              <i class="fas fa-triangle-exclamation fs-3"></i>
+            </span>
+          </div>
         </div>
       </div>
     </div>
+
+    <!-- Out of Stock -->
     <div class="col-sm-6 col-lg-3">
-      <div class="card">
+      <div class="card card-sm border-0 shadow-sm" style="border-top: 3.5px solid #ef4444 !important;">
         <div class="card-body">
-          <div class="text-secondary">Out of Stock</div>
-          <div class="h1 mb-0 text-danger">{{ out_of_stock }}</div>
+          <div class="d-flex align-items-center justify-content-between">
+            <div>
+              <div class="text-secondary small fw-semibold text-uppercase">Out of Stock</div>
+              <div class="h1 mb-0 mt-1 fw-bold text-danger">{{ out_of_stock }}</div>
+            </div>
+            <span class="avatar avatar-md rounded-circle bg-danger-lt text-danger">
+              <i class="fas fa-box-open fs-3"></i>
+            </span>
+          </div>
         </div>
       </div>
     </div>
   </div>
 
-  <div class="row row-cards mt-0">
+  <!-- SECONDARY ROW: Expiring, Expired, Stock on Hand -->
+  <div class="row row-cards mb-3">
+    <!-- Expiring Soon -->
     <div class="col-sm-6 col-lg-4">
-      <div class="card">
+      <div class="card border-0 shadow-sm h-100">
         <div class="card-body">
-          <div class="text-secondary">Expiring Soon</div>
-          <div class="h1 mb-0 text-warning">{{ expiring_soon }}</div>
-          <div class="text-secondary">Within the next 30 days.</div>
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <span class="text-secondary fw-semibold">Expiring Soon</span>
+            <span class="badge bg-warning-lt text-warning">Within 30 Days</span>
+          </div>
+          <div class="h1 mb-1 fw-bold text-warning">{{ expiring_soon }}</div>
+          <div class="text-secondary small">Seed batches requiring distribution priority.</div>
         </div>
-        <div class="card-footer">
-          <a href="{% url 'seed_expiry' %}?view=soon" class="btn btn-sm btn-outline-warning w-100">
-            View Expiring Seeds
+        <div class="card-footer bg-transparent border-0 pt-0">
+          <a href="{% url 'seed_expiry' %}?view=soon" class="btn btn-sm btn-outline-warning w-100 rounded-pill">
+            <i class="fas fa-calendar-check me-1"></i> View Expiring Seeds
           </a>
         </div>
       </div>
     </div>
+
+    <!-- Expired -->
     <div class="col-sm-6 col-lg-4">
-      <div class="card">
+      <div class="card border-0 shadow-sm h-100">
         <div class="card-body">
-          <div class="text-secondary">Expired</div>
-          <div class="h1 mb-0 text-danger">{{ expired }}</div>
-          <div class="text-secondary">Past their expiration date.</div>
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <span class="text-secondary fw-semibold">Expired Batches</span>
+            <span class="badge bg-danger-lt text-danger">Quality Alert</span>
+          </div>
+          <div class="h1 mb-1 fw-bold text-danger">{{ expired }}</div>
+          <div class="text-secondary small">Seeds past their expiration date.</div>
         </div>
-        <div class="card-footer">
-          <a href="{% url 'seed_expiry' %}?view=expired" class="btn btn-sm btn-outline-danger w-100">
-            View Expired Seeds
+        <div class="card-footer bg-transparent border-0 pt-0">
+          <a href="{% url 'seed_expiry' %}?view=expired" class="btn btn-sm btn-outline-danger w-100 rounded-pill">
+            <i class="fas fa-circle-exclamation me-1"></i> View Expired Seeds
           </a>
         </div>
       </div>
     </div>
+
+    <!-- Stock on Hand by Unit -->
     <div class="col-sm-12 col-lg-4">
-      <div class="card">
+      <div class="card border-0 shadow-sm h-100">
         <div class="card-body">
-          <div class="text-secondary">Stock on hand, by unit</div>
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <span class="text-secondary fw-semibold">Stock on Hand by Unit</span>
+            <span class="badge bg-primary-lt">Inventory Count</span>
+          </div>
           {% if quantity_by_unit %}
           <ul class="list-unstyled mb-0 mt-2">
             {% for row in quantity_by_unit %}
-            <li class="d-flex justify-content-between align-items-center py-1">
-              <span class="text-secondary">{{ row.unit }}</span>
-              <span class="fw-bold">{{ row.total }}</span>
+            <li class="d-flex justify-content-between align-items-center py-1 border-bottom border-light-subtle">
+              <span class="text-secondary fw-medium">{{ row.unit|capfirst }}</span>
+              <span class="badge bg-azure-lt text-azure fs-4">{{ row.total }}</span>
             </li>
             {% endfor %}
           </ul>
           {% else %}
           <div class="h1 mb-0">0</div>
-          <div class="text-secondary">No quantities recorded yet.</div>
+          <div class="text-secondary small">No quantities recorded yet.</div>
           {% endif %}
         </div>
-        <div class="card-footer">
-          <a href="{% url 'seed_status' %}" class="btn btn-sm btn-outline-primary w-100">
-            View Seed Status
+        <div class="card-footer bg-transparent border-0 pt-0">
+          <a href="{% url 'seed_status' %}" class="btn btn-sm btn-outline-primary w-100 rounded-pill">
+            <i class="fas fa-layer-group me-1"></i> View Full Seed Status
           </a>
         </div>
       </div>
     </div>
   </div>
 
-  <div class="row row-cards mt-0">
+  <!-- MAIN BOTTOM SECTION: Recent Seeds & Needs Attention -->
+  <div class="row row-cards">
+    <!-- Recently Added Seeds Table -->
     <div class="col-lg-8">
-      <div class="card">
-        <div class="card-header">
-          <h3 class="card-title">Recently Added Seeds</h3>
-          <div class="card-actions">
-            <a href="{% url 'inventory_list' %}" class="btn btn-sm btn-outline-primary">
-              View All Inventory
+      <div class="card border-0 shadow-sm">
+        <div class="card-header border-bottom border-light-subtle bg-transparent py-3">
+          <div class="d-flex align-items-center justify-content-between w-100">
+            <h3 class="card-title fw-bold m-0 d-flex align-items-center">
+              <i class="fas fa-clock-rotate-left me-2 text-primary"></i> Recently Added Seeds
+            </h3>
+            <a href="{% url 'inventory_list' %}" class="btn btn-sm btn-outline-primary rounded-pill">
+              View All Inventory <i class="fas fa-arrow-right ms-1"></i>
             </a>
           </div>
         </div>
         <div class="table-responsive">
-          <table class="table table-vcenter card-table">
+          <table class="table table-vcenter card-table table-hover">
             <thead>
-              <tr>
+              <tr class="text-secondary small text-uppercase">
+                <th style="width: 48px;">Photo</th>
                 <th>Seed Name</th>
                 <th>Category</th>
                 <th>Quantity</th>
@@ -139,33 +197,47 @@
               {% for seed in recent_seeds %}
               <tr>
                 <td>
-                  {{ seed.seed_name }}
-                  {% if seed.variety %}
-                  <div class="text-secondary">{{ seed.variety }}</div>
+                  {% if seed.image %}
+                  <a href="{{ seed.image.url }}" target="_blank" class="avatar avatar-sm rounded shadow-sm border" style="background-image: url('{{ seed.image.url }}'); background-size: cover; background-position: center;" title="View photo"></a>
+                  {% else %}
+                  <span class="avatar avatar-sm rounded bg-green-lt text-green">
+                    <i class="fas fa-seedling"></i>
+                  </span>
                   {% endif %}
                 </td>
-                <td>{{ seed.get_category_display }}</td>
-                <td>{{ seed.quantity }} {{ seed.get_unit_display }}</td>
+                <td>
+                  <strong class="text-white">{{ seed.seed_name }}</strong>
+                  {% if seed.variety %}
+                  <div class="text-secondary small">{{ seed.variety }}</div>
+                  {% endif %}
+                </td>
+                <td><span class="badge bg-azure-lt">{{ seed.get_category_display }}</span></td>
+                <td><strong>{{ seed.quantity }}</strong> <span class="text-secondary small">{{ seed.get_unit_display }}</span></td>
                 <td>
                   {% if seed.stock_status == "Out of Stock" %}
-                  <span class="badge bg-danger text-white">{{ seed.stock_status }}</span>
+                  <span class="badge bg-danger-lt text-danger">{{ seed.stock_status }}</span>
                   {% elif seed.stock_status == "Low Stock" %}
-                  <span class="badge bg-warning text-dark">{{ seed.stock_status }}</span>
+                  <span class="badge bg-warning-lt text-warning">{{ seed.stock_status }}</span>
                   {% else %}
-                  <span class="badge bg-success text-white">{{ seed.stock_status }}</span>
+                  <span class="badge bg-success-lt text-success">{{ seed.stock_status }}</span>
                   {% endif %}
                 </td>
-                <td class="text-secondary">{{ seed.date_added|date:"M d, Y" }}</td>
+                <td class="text-secondary small">{{ seed.date_added|date:"M d, Y" }}</td>
                 <td class="text-end">
-                  <div class="sv-row-actions">
-                    <a href="{% url 'inventory_edit' seed.pk %}" class="btn btn-sm btn-primary">Edit</a>
-                    <a href="{% url 'inventory_delete' seed.pk %}" class="btn btn-sm btn-outline-danger">Delete</a>
+                  <div class="btn-list flex-nowrap justify-content-end">
+                    <a href="{% url 'inventory_edit' seed.pk %}" class="btn btn-sm btn-outline-primary" title="Edit Seed">
+                      <i class="fas fa-pen-to-square me-1"></i> Edit
+                    </a>
+                    <a href="{% url 'inventory_delete' seed.pk %}" class="btn btn-sm btn-outline-danger" title="Delete Seed">
+                      <i class="fas fa-trash me-1"></i> Delete
+                    </a>
                   </div>
                 </td>
               </tr>
               {% empty %}
               <tr>
-                <td colspan="6" class="text-center text-secondary py-5">
+                <td colspan="7" class="text-center text-secondary py-5">
+                  <i class="fas fa-box-open fs-1 d-block mb-2 text-muted"></i>
                   No seeds have been added yet.
                 </td>
               </tr>
@@ -176,35 +248,47 @@
       </div>
     </div>
 
+    <!-- Needs Attention Side Card -->
     <div class="col-lg-4">
-      <div class="card">
-        <div class="card-header">
-          <h3 class="card-title">Needs Attention</h3>
-          <span class="badge bg-warning text-dark ms-2">{{ attention_count }}</span>
+      <div class="card border-0 shadow-sm">
+        <div class="card-header border-bottom border-light-subtle bg-transparent py-3">
+          <div class="d-flex align-items-center justify-content-between w-100">
+            <h3 class="card-title fw-bold m-0 d-flex align-items-center">
+              <i class="fas fa-bell me-2 text-warning"></i> Needs Attention
+            </h3>
+            <span class="badge bg-warning text-dark fw-bold rounded-pill px-2">{{ attention_count }}</span>
+          </div>
         </div>
-        <div class="table-responsive">
-          <table class="table table-vcenter card-table">
+        <div class="table-responsive" style="max-height: 380px;">
+          <table class="table table-vcenter card-table table-hover">
             <tbody>
               {% for row in attention %}
               <tr>
                 <td>
-                  {{ row.seed.seed_name }}
-                  <div class="text-secondary">{{ row.seed.quantity }} {{ row.seed.get_unit_display }}</div>
+                  <strong class="text-white">{{ row.seed.seed_name }}</strong>
+                  <div class="text-secondary small">{{ row.seed.quantity }} {{ row.seed.get_unit_display }}</div>
                 </td>
                 <td>
-                  <span class="badge bg-{{ row.tone }} text-white">{{ row.reason }}</span>
+                  {% if row.tone == 'danger' %}
+                  <span class="badge bg-danger-lt text-danger">{{ row.reason }}</span>
+                  {% else %}
+                  <span class="badge bg-warning-lt text-warning">{{ row.reason }}</span>
+                  {% endif %}
                 </td>
                 <td class="text-end">
-                  <a href="{% url 'inventory_edit' row.seed.pk %}" class="btn btn-sm btn-outline-primary">Open</a>
+                  <a href="{% url 'inventory_edit' row.seed.pk %}" class="btn btn-sm btn-outline-primary rounded-pill">
+                    Open
+                  </a>
                 </td>
               </tr>
               {% empty %}
               <tr>
-                <td class="text-center text-secondary py-5">
+                <td colspan="3" class="text-center text-secondary py-5">
+                  <i class="fas fa-circle-check fs-1 d-block mb-2 text-success"></i>
                   {% if total_records %}
-                  Nothing needs attention right now.
+                  All seeds are currently in stock and healthy!
                   {% else %}
-                  Add seed records to see low-stock and expiry alerts here.
+                  Add seed records to see alerts here.
                   {% endif %}
                 </td>
               </tr>
@@ -212,9 +296,9 @@
             </tbody>
           </table>
         </div>
-        <div class="card-footer">
-          <a href="{% url 'inventory_list' %}?status=low" class="btn btn-sm btn-outline-warning w-100">
-            Filter inventory by low stock
+        <div class="card-footer bg-transparent border-0 pt-0">
+          <a href="{% url 'inventory_list' %}?status=low" class="btn btn-sm btn-outline-warning w-100 rounded-pill">
+            <i class="fas fa-filter me-1"></i> Filter inventory by low stock
           </a>
         </div>
       </div>
