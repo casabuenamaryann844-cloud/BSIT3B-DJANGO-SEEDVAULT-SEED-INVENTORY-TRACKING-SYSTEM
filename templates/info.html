@@ -1,43 +1,51 @@
 {% extends "theme/base.html" %}
 {% block content %}
 <div class="container-xl">
-  <div class="page-header d-print-none" aria-label="Page header">
-    <div class="container-xl">
-      <div class="row align-items-center">
-        <div class="col">
-          <div class="page-pretitle">Overview</div>
-          <div class="d-flex align-items-center gap-3 flex-wrap d-none d-md-flex">
-            <h2 class="page-title mb-0">Seed Distribution</h2>
-          </div>
-          <h2 class="page-title mb-0 d-md-none">Seed Distribution</h2>
-        </div>
+
+  <!-- PAGE HEADER -->
+  <div class="page-header mb-4">
+    <div class="row align-items-center">
+      <div class="col">
+        <div class="page-pretitle">SeedVault Management</div>
+        <h2 class="page-title">
+          <i class="fas fa-share-nodes me-2 text-teal"></i>Seed Distribution
+        </h2>
+        <p class="text-secondary mb-0">Track seed recipients and quantities issued from the vault.</p>
+      </div>
+      <div class="col-auto">
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#infoModal" data-mode="create">
+          <i class="fas fa-plus-circle me-2"></i>Add Distribution
+        </button>
       </div>
     </div>
   </div>
-  <br>
 
-  <div class="d-flex flex-column flex-md-row align-items-start align-items-md-end justify-content-between gap-2 mb-1">
-    <form method="GET" class="w-100" style="max-width: 420px;">
-      <div class="input-group">
-        <span class="input-group-text"><i class="fas fa-search"></i></span>
-        <input type="text" name="q" value="{{ query }}" class="form-control" placeholder="Search by recipient, address, or email...">
-        {% if query %}
-        <a href="{% url 'info:info_list' %}" class="btn btn-outline-secondary">Clear</a>
-        {% endif %}
-        <button type="submit" class="btn btn-primary">Search</button>
-      </div>
-    </form>
-
-    <button type="button" class="btn btn-primary mt-n4" data-bs-toggle="modal" data-bs-target="#infoModal" data-mode="create">
-      <i class='fas fa-plus-circle me-2'></i> Add Distribution
-    </button>
+  <!-- SEARCH -->
+  <div class="card mb-3">
+    <div class="card-body py-2">
+      <form method="GET" class="d-flex align-items-center gap-2">
+        <div class="input-group" style="max-width: 440px;">
+          <span class="input-group-text"><i class="fas fa-search"></i></span>
+          <input type="text" name="q" value="{{ query }}" class="form-control" placeholder="Search recipient, address, or email…">
+          {% if query %}
+          <a href="{% url 'info:info_list' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-xmark"></i>
+          </a>
+          {% endif %}
+          <button type="submit" class="btn btn-primary">Search</button>
+        </div>
+      </form>
+    </div>
   </div>
 
+  <!-- TOAST NOTIFICATIONS -->
   <div class="toast-container position-fixed top-0 end-0 p-3" id="infoToastContainer" aria-live="polite" aria-atomic="true">
     {% for message in messages %}
-    <div class="toast bg-info-lt" role="status" aria-atomic="true" data-bs-delay="4000" style="--tblr-toast-color: #000;">
+    <div class="toast bg-success-lt" role="status" aria-atomic="true" data-bs-delay="4000">
       <div class="d-flex">
-        <div class="toast-body">{{ message }}</div>
+        <div class="toast-body d-flex align-items-center gap-2">
+          <i class="fas fa-circle-check text-success"></i>{{ message }}
+        </div>
         <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
       </div>
     </div>
@@ -46,12 +54,13 @@
 
   <div id="infoAlert" class="alert alert-danger d-none" role="alert"></div>
 
+  <!-- RECORDS TABLE -->
   <div class="card">
     <div class="card-header">
       <div class="card-title">
-        Distribution Records
+        <i class="fas fa-table me-2 text-muted"></i>Distribution Records
         {% if query %}
-        <span class="text-muted fw-normal">— search results for "{{ query }}"</span>
+        <span class="text-muted fw-normal">— results for "{{ query }}"</span>
         {% endif %}
       </div>
     </div>
@@ -73,31 +82,47 @@
         {% for info in infos %}
         <tr data-row-id="{{ info.id }}">
             <td class="text-muted">{{ forloop.counter0|add:infos.start_index }}</td>
-            <td class="fw-semibold">{{ info.name }}</td>
-            <td><span class="badge bg-primary-lt text-primary">{{ info.age }}</span></td>
+            <td>
+              <div class="d-flex align-items-center gap-2">
+                <span class="avatar avatar-sm bg-teal-lt text-teal">
+                  {{ info.name|first|upper }}
+                </span>
+                <span class="fw-semibold">{{ info.name }}</span>
+              </div>
+            </td>
+            <td><span class="badge bg-blue-lt text-blue rounded-pill">{{ info.age }} yrs</span></td>
             <td class="text-muted">{{ info.address }}</td>
             <td class="text-muted">{{ info.email|default:"—" }}</td>
             <td>
               {% if info.seed %}
               <span class="fw-semibold">{{ info.seed.seed_name }}</span>
-              {% if info.seed.variety %}<span class="text-muted">{{ info.seed.variety }}</span>{% endif %}
+              {% if info.seed.variety %}<br><small class="text-muted">{{ info.seed.variety }}</small>{% endif %}
               {% else %}
               <span class="text-muted">—</span>
               {% endif %}
             </td>
             <td>
               {% if info.seed %}
-              <span class="badge bg-green-lt">{{ info.quantity_issued }} {{ info.seed.unit }}</span>
+              <span class="badge bg-green-lt text-green rounded-pill">
+                {{ info.quantity_issued }} {{ info.seed.unit }}
+              </span>
               {% else %}
               <span class="text-muted">—</span>
               {% endif %}
             </td>
             <td>
               <div class="d-flex gap-1">
-                <button type="button" class="btn btn-ghost-secondary btn-icon btn-sm" data-bs-toggle="modal" data-bs-target="#infoModal" data-mode="edit" data-id="{{ info.id }}" data-name="{{ info.name }}" data-age="{{ info.age }}" data-address="{{ info.address }}" data-email="{{ info.email }}" data-seed="{{ info.seed_id|default:'' }}" data-quantity-issued="{{ info.quantity_issued }}" title="Edit">
-                  <i class="fas fa-edit text-primary"></i>
+                <button type="button" class="btn btn-ghost-secondary btn-icon btn-sm"
+                   data-bs-toggle="modal" data-bs-target="#infoModal" data-mode="edit"
+                   data-id="{{ info.id }}" data-name="{{ info.name }}" data-age="{{ info.age }}"
+                   data-address="{{ info.address }}" data-email="{{ info.email }}"
+                   data-seed="{{ info.seed_id|default:'' }}" data-quantity-issued="{{ info.quantity_issued }}"
+                   title="Edit">
+                  <i class="fas fa-pen-to-square text-primary"></i>
                 </button>
-                <button type="button" class="btn btn-ghost-secondary btn-icon btn-sm" data-bs-toggle="modal" data-bs-target="#deleteInfoModal" data-id="{{ info.id }}" data-name="{{ info.name }}" title="Delete">
+                <button type="button" class="btn btn-ghost-secondary btn-icon btn-sm"
+                   data-bs-toggle="modal" data-bs-target="#deleteInfoModal"
+                   data-id="{{ info.id }}" data-name="{{ info.name }}" title="Delete">
                   <i class="fas fa-trash-alt text-danger"></i>
                 </button>
               </div>
@@ -108,13 +133,13 @@
             <td colspan="8">
                 <div class="empty py-5">
                     <div class="empty-icon">
-                        <i class="fas fa-seedling fa-2x text-muted"></i>
+                        <i class="fas fa-share-nodes fa-2x text-muted"></i>
                     </div>
                     <p class="empty-title">No distributions recorded</p>
                     <p class="empty-subtitle">Try adjusting your search or add a new distribution.</p>
                     <div class="empty-action">
                         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#infoModal" data-mode="create">
-                            <i class="fas fa-plus-circle me-2"></i> Add Distribution
+                            <i class="fas fa-plus-circle me-2"></i>Add Distribution
                         </button>
                     </div>
                 </div>
@@ -158,11 +183,14 @@
   </div>
 </div>
 
+<!-- ADD / EDIT MODAL -->
 <div class="modal modal-blur fade" id="infoModal" tabindex="-1">
   <div class="modal-dialog modal-md modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="infoModalTitle">Add Distribution</h5>
+        <h5 class="modal-title" id="infoModalTitle">
+          <i class="fas fa-share-nodes me-2 text-teal"></i>Add Distribution
+        </h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <form id="infoForm">
@@ -172,23 +200,23 @@
           <div id="infoFormError" class="alert alert-danger d-none"></div>
           <div class="row g-3">
             <div class="col-12">
-              <label class="form-label">Recipient Name</label>
-              <input type="text" name="name" id="info_name" class="form-control" required>
+              <label class="form-label required">Recipient Name</label>
+              <input type="text" name="name" id="info_name" class="form-control" placeholder="Full name" required>
             </div>
-            <div class="col-12">
-              <label class="form-label">Age</label>
+            <div class="col-6">
+              <label class="form-label required">Age</label>
               <input type="number" name="age" id="info_age" class="form-control" min="1" max="150" required>
             </div>
-            <div class="col-12">
-              <label class="form-label">Address</label>
-              <input type="text" name="address" id="info_address" class="form-control" required>
-            </div>
-            <div class="col-12">
+            <div class="col-6">
               <label class="form-label">Email <span class="text-muted">(optional)</span></label>
-              <input type="email" name="email" id="info_email" class="form-control">
+              <input type="email" name="email" id="info_email" class="form-control" placeholder="email@example.com">
             </div>
             <div class="col-12">
-              <div class="hr-text my-1">Seeds issued</div>
+              <label class="form-label required">Address</label>
+              <input type="text" name="address" id="info_address" class="form-control" placeholder="Barangay, City, Province">
+            </div>
+            <div class="col-12">
+              <div class="hr-text my-1"><i class="fas fa-seedling me-1"></i>Seeds Issued</div>
             </div>
             <div class="col-12">
               <label class="form-label">Seed</label>
@@ -210,27 +238,40 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-ghost-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button type="submit" class="btn btn-primary" id="infoSubmitBtn">Save Distribution</button>
+          <button type="button" class="btn btn-ghost-secondary" data-bs-dismiss="modal">
+            <i class="fas fa-xmark me-1"></i>Cancel
+          </button>
+          <button type="submit" class="btn btn-primary" id="infoSubmitBtn">
+            <i class="fas fa-floppy-disk me-1"></i>Save Distribution
+          </button>
         </div>
       </form>
     </div>
   </div>
 </div>
 
+<!-- DELETE CONFIRM MODAL -->
 <div class="modal modal-blur fade" id="deleteInfoModal" tabindex="-1">
   <div class="modal-dialog modal-sm modal-dialog-centered">
     <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Delete Distribution</h5>
+      <div class="modal-header border-danger">
+        <h5 class="modal-title text-danger">
+          <i class="fas fa-triangle-exclamation me-2"></i>Delete Distribution
+        </h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
-      <div class="modal-body">
-        <p>Are you sure you want to delete <strong id="deleteInfoName"></strong>?</p>
+      <div class="modal-body text-center py-4">
+        <div class="mb-3">
+          <i class="fas fa-trash-can fa-3x text-danger opacity-75"></i>
+        </div>
+        <p class="mb-0">Are you sure you want to delete the record for <strong id="deleteInfoName"></strong>?</p>
+        <p class="text-muted small mt-1">This action cannot be undone.</p>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-ghost-secondary" data-bs-dismiss="modal">Cancel</button>
-        <button type="button" class="btn btn-danger" id="confirmDeleteInfoBtn">Delete</button>
+        <button type="button" class="btn btn-danger" id="confirmDeleteInfoBtn">
+          <i class="fas fa-trash-can me-1"></i>Delete
+        </button>
       </div>
     </div>
   </div>
@@ -266,8 +307,8 @@
   function resetForm() {
     form.reset();
     document.getElementById('info_id').value = '';
-    title.textContent = 'Add Distribution';
-    submitBtn.textContent = 'Save Distribution';
+    title.innerHTML = '<i class="fas fa-share-nodes me-2 text-teal"></i>Add Distribution';
+    submitBtn.innerHTML = '<i class="fas fa-floppy-disk me-1"></i>Save Distribution';
     alertBox.classList.add('d-none');
     alertBox.textContent = '';
     syncQuantityState();
@@ -276,16 +317,13 @@
 
   modalEl.addEventListener('show.bs.modal', function(event) {
     const button = event.relatedTarget;
-    if (!button) {
-      resetForm();
-      return;
-    }
+    if (!button) { resetForm(); return; }
 
     const mode = button.getAttribute('data-mode');
     if (mode === 'edit') {
       const id = button.getAttribute('data-id');
-      title.textContent = 'Edit Distribution';
-      submitBtn.textContent = 'Update Distribution';
+      title.innerHTML = '<i class="fas fa-pen-to-square me-2 text-primary"></i>Edit Distribution';
+      submitBtn.innerHTML = '<i class="fas fa-floppy-disk me-1"></i>Update Distribution';
       currentInfoId = id;
       document.getElementById('info_id').value = id;
       document.getElementById('info_name').value = button.getAttribute('data-name');
@@ -340,9 +378,7 @@
     })
     .then(response => response.json())
     .then(data => {
-      if (data.status === 'deleted') {
-        window.location.reload();
-      }
+      if (data.status === 'deleted') { window.location.reload(); }
     });
   });
 

@@ -2,50 +2,95 @@
 {% extends "theme/base.html" %}
 
 {% block content %}
-<div class="container-fluid">
-    <div class="mb-4">
-        <h1 class="h2">Delete Seed</h1>
-        <p class="text-secondary">
-            Review the seed record before deleting it.
-        </p>
-    </div>
+<div class="container-xl">
 
-    <div class="card">
-        <div class="card-body">
-            <div class="alert alert-warning" role="alert">
-                Are you sure you want to delete this seed?
-                This action cannot be undone.
+    <div class="page-header mb-4">
+        <div class="row align-items-center">
+            <div class="col">
+                <div class="page-pretitle">Seed Inventory</div>
+                <h2 class="page-title text-danger">
+                    <i class="fas fa-trash-can me-2"></i>Delete Seed
+                </h2>
             </div>
-
-            <h3 class="h4 mb-3">{{ seed.seed_name }}</h3>
-
-            <p>
-                <strong>Variety:</strong>
-                {{ seed.variety|default:"Not specified" }}
-            </p>
-
-            <p>
-                <strong>Category:</strong>
-                {{ seed.get_category_display }}
-            </p>
-
-            <p>
-                <strong>Quantity:</strong>
-                {{ seed.quantity }} {{ seed.get_unit_display }}
-            </p>
-
-            <form method="post">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-danger">
-                    Delete Seed
-                </button>
-
-                <a href="{% url 'inventory_list' %}"
-                   class="btn btn-secondary">
-                    Cancel
+            <div class="col-auto">
+                <a href="{% url 'inventory_list' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-1"></i> Back to Inventory
                 </a>
-            </form>
+            </div>
         </div>
     </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card border-danger">
+                <div class="card-header bg-danger-lt">
+                    <h3 class="card-title text-danger">
+                        <i class="fas fa-triangle-exclamation me-2"></i>Confirm Deletion
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-danger d-flex align-items-center gap-3" role="alert">
+                        <i class="fas fa-circle-exclamation fa-lg flex-shrink-0"></i>
+                        <div>
+                            <strong>This action cannot be undone.</strong><br>
+                            The seed record will be permanently removed from the vault.
+                        </div>
+                    </div>
+
+                    <div class="d-flex align-items-center gap-3 p-3 bg-light rounded-2 mb-4">
+                        {% if seed.image %}
+                        <div class="avatar avatar-lg rounded shadow-sm border border-2 border-danger-subtle"
+                             style="background-image:url('{{ seed.image.url }}');background-size:cover;background-position:center;">
+                        </div>
+                        {% else %}
+                        <span class="avatar avatar-lg rounded bg-green-lt text-green">
+                            <i class="fas fa-seedling fa-lg"></i>
+                        </span>
+                        {% endif %}
+                        <div>
+                            <div class="fw-bold fs-4 mb-1">{{ seed.seed_name }}</div>
+                            {% if seed.variety %}
+                            <div class="text-muted">{{ seed.variety }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="row g-2 mb-4">
+                        <div class="col-6">
+                            <div class="p-2 rounded bg-light">
+                                <div class="text-muted small">Category</div>
+                                <div class="fw-medium">{{ seed.get_category_display }}</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-2 rounded bg-light">
+                                <div class="text-muted small">Quantity</div>
+                                <div class="fw-medium">{{ seed.quantity }} {{ seed.get_unit_display }}</div>
+                            </div>
+                        </div>
+                        {% if seed.storage_location %}
+                        <div class="col-12">
+                            <div class="p-2 rounded bg-light">
+                                <div class="text-muted small">Storage Location</div>
+                                <div class="fw-medium">{{ seed.storage_location }}</div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <form method="post" class="d-flex gap-2">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger flex-fill">
+                            <i class="fas fa-trash-can me-2"></i>Yes, Delete This Seed
+                        </button>
+                        <a href="{% url 'inventory_list' %}" class="btn btn-outline-secondary flex-fill">
+                            <i class="fas fa-xmark me-1"></i>Cancel
+                        </a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
 {% endblock %}

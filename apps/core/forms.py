@@ -10,6 +10,7 @@ class SeedInventoryForm(forms.ModelForm):
             "seed_name",
             "variety",
             "category",
+            "image",
             "quantity",
             "unit",
             "storage_location",
@@ -27,6 +28,10 @@ class SeedInventoryForm(forms.ModelForm):
             }),
             "category": forms.Select(attrs={
                 "class": "form-select",
+            }),
+            "image": forms.ClearableFileInput(attrs={
+                "class": "form-control",
+                "accept": "image/*",
             }),
             "quantity": forms.NumberInput(attrs={
                 "class": "form-control",

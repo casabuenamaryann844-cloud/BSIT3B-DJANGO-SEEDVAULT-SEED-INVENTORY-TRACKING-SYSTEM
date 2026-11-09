@@ -78,6 +78,7 @@
             <table class="table table-vcenter card-table">
                 <thead>
                     <tr>
+                        <th style="width: 48px;">Photo</th>
                         <th>Seed Name</th>
                         <th>Variety</th>
                         <th>Category</th>
@@ -92,7 +93,16 @@
                 <tbody>
                     {% for seed in seeds %}
                     <tr>
-                        <td>{{ seed.seed_name }}</td>
+                        <td>
+                            {% if seed.image %}
+                            <a href="{{ seed.image.url }}" target="_blank" class="avatar avatar-sm rounded shadow-sm border border-2 border-primary-subtle" style="background-image: url('{{ seed.image.url }}'); background-size: cover; background-position: center;" title="Click to view full photo"></a>
+                            {% else %}
+                            <span class="avatar avatar-sm rounded bg-green-lt text-green" title="No photo uploaded">
+                                <i class="fas fa-seedling"></i>
+                            </span>
+                            {% endif %}
+                        </td>
+                        <td><strong>{{ seed.seed_name }}</strong></td>
                         <td>{{ seed.variety|default:"—" }}</td>
                         <td>{{ seed.get_category_display }}</td>
                         <td>{{ seed.quantity }}</td>
@@ -101,19 +111,23 @@
                         <td>{{ seed.expiration_date|default:"—" }}</td>
                         <td>
                             {% if seed.stock_status == "Out of Stock" %}
-                            <span class="badge bg-danger text-white">{{ seed.stock_status }}</span>
+                            <span class="badge bg-danger-lt text-danger fw-bold">{{ seed.stock_status }}</span>
                             {% elif seed.stock_status == "Low Stock" %}
-                            <span class="badge bg-warning text-dark">{{ seed.stock_status }}</span>
+                            <span class="badge bg-warning-lt text-warning fw-bold">{{ seed.stock_status }}</span>
                             {% else %}
-                            <span class="badge bg-success text-white">{{ seed.stock_status }}</span>
+                            <span class="badge bg-success-lt text-success fw-bold">{{ seed.stock_status }}</span>
                             {% endif %}
                         </td>
                         <td class="text-end">
-                            <div class="sv-row-actions">
+                            <div class="btn-list flex-nowrap justify-content-end">
                                 <a href="{% url 'inventory_edit' seed.pk %}"
-                                   class="btn btn-sm btn-primary">Edit</a>
+                                   class="btn btn-sm btn-outline-primary" title="Edit Seed">
+                                    <i class="fas fa-pen-to-square me-1"></i> Edit
+                                </a>
                                 <a href="{% url 'inventory_delete' seed.pk %}"
-                                   class="btn btn-sm btn-outline-danger">Delete</a>
+                                   class="btn btn-sm btn-outline-danger" title="Delete Seed">
+                                    <i class="fas fa-trash me-1"></i> Delete
+                                </a>
                             </div>
                         </td>
                     </tr>

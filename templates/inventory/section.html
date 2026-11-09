@@ -5,24 +5,55 @@
 <div class="container-xl">
 
     <div class="page-header mb-4">
-        <div class="page-pretitle">SeedVault Management</div>
-        <h2 class="page-title">{{ title }}</h2>
-        <p class="text-secondary">{{ description }}</p>
+        <div class="row align-items-center">
+            <div class="col">
+                <div class="page-pretitle">SeedVault Management</div>
+                <h2 class="page-title">
+                    {% if kind == "categories" %}<i class="fas fa-layer-group me-2 text-green"></i>
+                    {% elif kind == "locations" %}<i class="fas fa-warehouse me-2 text-azure"></i>
+                    {% elif kind == "status" %}<i class="fas fa-chart-bar me-2 text-orange"></i>
+                    {% elif kind == "reports" %}<i class="fas fa-file-chart-column me-2 text-purple"></i>
+                    {% elif kind == "expiry" %}<i class="fas fa-calendar-xmark me-2 text-red"></i>
+                    {% endif %}{{ title }}
+                </h2>
+                <p class="text-secondary mb-0">{{ description }}</p>
+            </div>
+        </div>
     </div>
 
     {% if kind == "categories" %}
     <div class="row row-cards">
         {% for item in categories %}
         <div class="col-sm-6 col-xl-4">
-            <div class="card">
+            <div class="card card-sm border-top border-3 border-green">
                 <div class="card-body">
-                    <div class="text-secondary">{{ item.name }}</div>
-                    <div class="h1 mb-3">{{ item.count }}</div>
-                    <a href="{% url 'inventory_list' %}"
-                       class="btn btn-outline-primary btn-sm">
-                        View Inventory
+                    <div class="d-flex align-items-center mb-3">
+                        <span class="avatar avatar-sm bg-green-lt text-green me-3">
+                            <i class="fas fa-seedling"></i>
+                        </span>
+                        <div class="text-secondary fw-medium text-uppercase" style="font-size:.75rem;letter-spacing:.05em;">Category</div>
+                    </div>
+                    <div class="fw-bold fs-4 mb-1">{{ item.name }}</div>
+                    <div class="mb-3">
+                        <span class="badge bg-green-lt text-green rounded-pill px-2">
+                            {{ item.count }} seed{{ item.count|pluralize }}
+                        </span>
+                    </div>
+                    <a href="{% url 'inventory_list' %}?category={{ item.slug|default:item.name }}"
+                       class="btn btn-outline-primary btn-sm rounded-pill">
+                        <i class="fas fa-arrow-right me-1"></i> View Seeds
                     </a>
                 </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="empty py-5">
+                <div class="empty-icon">
+                    <i class="fas fa-layer-group fa-2x text-muted"></i>
+                </div>
+                <p class="empty-title">No categories yet</p>
+                <p class="empty-subtitle">Add seeds to see categories appear here.</p>
             </div>
         </div>
         {% endfor %}
@@ -30,24 +61,48 @@
 
     {% elif kind == "locations" %}
     <div class="card">
+        <div class="card-header">
+            <h3 class="card-title"><i class="fas fa-warehouse me-2 text-azure"></i>Storage Locations</h3>
+        </div>
         <div class="table-responsive">
-            <table class="table table-vcenter card-table">
+            <table class="table table-vcenter table-hover card-table">
                 <thead>
                     <tr>
-                        <th>Storage Location</th>
+                        <th><i class="fas fa-map-pin me-1 text-muted"></i> Storage Location</th>
                         <th>Seed Records</th>
+                        <th>Coverage</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for item in locations %}
                     <tr>
-                        <td>{{ item.name }}</td>
-                        <td>{{ item.count }}</td>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="avatar avatar-xs bg-azure-lt text-azure">
+                                    <i class="fas fa-box"></i>
+                                </span>
+                                <span class="fw-medium">{{ item.name }}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge bg-azure-lt text-azure rounded-pill">{{ item.count }}</span>
+                        </td>
+                        <td>
+                            <a href="{% url 'inventory_list' %}?location={{ item.name }}" class="btn btn-ghost-secondary btn-sm btn-icon" title="View seeds at this location">
+                                <i class="fas fa-external-link-alt"></i>
+                            </a>
+                        </td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="2" class="text-center py-4">
-                            No storage locations recorded yet.
+                        <td colspan="3">
+                            <div class="empty py-5">
+                                <div class="empty-icon">
+                                    <i class="fas fa-warehouse fa-2x text-muted"></i>
+                                </div>
+                                <p class="empty-title">No storage locations recorded yet.</p>
+                                <p class="empty-subtitle">Set a storage location when adding seeds.</p>
+                            </div>
                         </td>
                     </tr>
                     {% endfor %}
@@ -58,8 +113,11 @@
 
     {% elif kind == "status" %}
     <div class="card">
+        <div class="card-header">
+            <h3 class="card-title"><i class="fas fa-chart-bar me-2 text-orange"></i>Seed Status Overview</h3>
+        </div>
         <div class="table-responsive">
-            <table class="table table-vcenter card-table">
+            <table class="table table-vcenter table-hover card-table">
                 <thead>
                     <tr>
                         <th>Seed Name</th>
@@ -71,32 +129,37 @@
                 <tbody>
                     {% for item in rows %}
                     <tr>
-                        <td>{{ item.seed.seed_name }}</td>
+                        <td><strong>{{ item.seed.seed_name }}</strong>
+                            {% if item.seed.variety %}<br><small class="text-muted">{{ item.seed.variety }}</small>{% endif %}
+                        </td>
                         <td>{{ item.seed.get_category_display }}</td>
                         <td>
                             {{ item.seed.quantity }}
-                            {{ item.seed.get_unit_display }}
+                            <span class="text-muted">{{ item.seed.get_unit_display }}</span>
                         </td>
                         <td>
                             {% if item.status == "Out of Stock" %}
-                            <span class="badge bg-danger text-white">
-                                {{ item.status }}
+                            <span class="badge bg-danger-lt text-danger fw-bold">
+                                <i class="fas fa-circle-xmark me-1"></i>{{ item.status }}
                             </span>
                             {% elif item.status == "Low Stock" %}
-                            <span class="badge bg-warning text-dark">
-                                {{ item.status }}
+                            <span class="badge bg-warning-lt text-warning fw-bold">
+                                <i class="fas fa-triangle-exclamation me-1"></i>{{ item.status }}
                             </span>
                             {% else %}
-                            <span class="badge bg-success text-white">
-                                {{ item.status }}
+                            <span class="badge bg-success-lt text-success fw-bold">
+                                <i class="fas fa-circle-check me-1"></i>{{ item.status }}
                             </span>
                             {% endif %}
                         </td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="4" class="text-center py-4">
-                            No seed records available.
+                        <td colspan="4">
+                            <div class="empty py-5">
+                                <div class="empty-icon"><i class="fas fa-seedling fa-2x text-muted"></i></div>
+                                <p class="empty-title">No seed records available.</p>
+                            </div>
                         </td>
                     </tr>
                     {% endfor %}
@@ -106,111 +169,151 @@
     </div>
 
     {% elif kind == "reports" %}
-    <div class="row row-cards">
+    <div class="row row-cards mb-4">
         <div class="col-sm-6 col-xl-3">
-            <div class="card"><div class="card-body">
-                <div class="text-secondary">Total Records</div>
-                <div class="h1">{{ total_records }}</div>
-            </div></div>
+            <div class="card card-sm border-top border-3 border-blue">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-2">
+                        <span class="avatar avatar-sm bg-blue-lt text-blue me-3"><i class="fas fa-database"></i></span>
+                        <div class="text-secondary fw-medium" style="font-size:.8rem;">Total Records</div>
+                    </div>
+                    <div class="h1 mb-0 text-blue">{{ total_records }}</div>
+                </div>
+            </div>
         </div>
         <div class="col-sm-6 col-xl-3">
-            <div class="card"><div class="card-body">
-                <div class="text-secondary">Available</div>
-                <div class="h1">{{ available }}</div>
-            </div></div>
+            <div class="card card-sm border-top border-3 border-green">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-2">
+                        <span class="avatar avatar-sm bg-green-lt text-green me-3"><i class="fas fa-circle-check"></i></span>
+                        <div class="text-secondary fw-medium" style="font-size:.8rem;">Available</div>
+                    </div>
+                    <div class="h1 mb-0 text-green">{{ available }}</div>
+                </div>
+            </div>
         </div>
         <div class="col-sm-6 col-xl-3">
-            <div class="card"><div class="card-body">
-                <div class="text-secondary">Low Stock</div>
-                <div class="h1">{{ low_stock }}</div>
-            </div></div>
+            <div class="card card-sm border-top border-3 border-warning">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-2">
+                        <span class="avatar avatar-sm bg-warning-lt text-warning me-3"><i class="fas fa-triangle-exclamation"></i></span>
+                        <div class="text-secondary fw-medium" style="font-size:.8rem;">Low Stock</div>
+                    </div>
+                    <div class="h1 mb-0 text-warning">{{ low_stock }}</div>
+                </div>
+            </div>
         </div>
         <div class="col-sm-6 col-xl-3">
-            <div class="card"><div class="card-body">
-                <div class="text-secondary">Out of Stock</div>
-                <div class="h1">{{ out_of_stock }}</div>
-            </div></div>
+            <div class="card card-sm border-top border-3 border-danger">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-2">
+                        <span class="avatar avatar-sm bg-danger-lt text-danger me-3"><i class="fas fa-circle-xmark"></i></span>
+                        <div class="text-secondary fw-medium" style="font-size:.8rem;">Out of Stock</div>
+                    </div>
+                    <div class="h1 mb-0 text-danger">{{ out_of_stock }}</div>
+                </div>
+            </div>
         </div>
         <div class="col-12">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Quantity on hand, by unit</h3>
+                    <h3 class="card-title"><i class="fas fa-boxes-stacked me-2 text-purple"></i>Quantity on Hand, by Unit</h3>
                 </div>
                 <div class="table-responsive">
                     <table class="table table-vcenter card-table">
                         <thead>
                             <tr>
                                 <th>Unit</th>
-                                <th>Total</th>
+                                <th>Total Quantity</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for row in quantity_by_unit %}
                             <tr>
-                                <td>{{ row.unit }}</td>
-                                <td>{{ row.total }}</td>
+                                <td class="fw-medium">{{ row.unit }}</td>
+                                <td><span class="badge bg-purple-lt text-purple rounded-pill">{{ row.total }}</span></td>
                             </tr>
                             {% empty %}
                             <tr>
-                                <td colspan="2" class="text-center py-4">
-                                    No quantities recorded yet.
-                                </td>
+                                <td colspan="2" class="text-center py-4 text-muted">No quantities recorded yet.</td>
                             </tr>
                             {% endfor %}
                         </tbody>
                     </table>
                 </div>
-                <div class="card-body text-secondary">
-                    Packets, grams and kilograms are reported separately — they are
-                    different measures and are never added together.
+                <div class="card-footer text-muted">
+                    <i class="fas fa-info-circle me-1"></i>
+                    Packets, grams, and kilograms are reported separately — they are different measures and are never added together.
                 </div>
             </div>
         </div>
     </div>
+
     {% elif kind == "expiry" %}
     <div class="row row-cards mb-4">
         <div class="col-sm-4">
-            <div class="card"><div class="card-body">
-                <div class="text-secondary">Expiring Soon</div>
-                <div class="h1 mb-0">{{ expiring_soon|length }}</div>
-            </div></div>
+            <div class="card card-sm border-top border-3 border-warning">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-2">
+                        <span class="avatar avatar-sm bg-warning-lt text-warning me-3"><i class="fas fa-clock"></i></span>
+                        <div class="text-secondary fw-medium" style="font-size:.8rem;">Expiring Soon</div>
+                    </div>
+                    <div class="h1 mb-0 text-warning">{{ expiring_soon|length }}</div>
+                </div>
+            </div>
         </div>
         <div class="col-sm-4">
-            <div class="card"><div class="card-body">
-                <div class="text-secondary">Expired</div>
-                <div class="h1 mb-0">{{ expired|length }}</div>
-            </div></div>
+            <div class="card card-sm border-top border-3 border-danger">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-2">
+                        <span class="avatar avatar-sm bg-danger-lt text-danger me-3"><i class="fas fa-skull-crossbones"></i></span>
+                        <div class="text-secondary fw-medium" style="font-size:.8rem;">Expired</div>
+                    </div>
+                    <div class="h1 mb-0 text-danger">{{ expired|length }}</div>
+                </div>
+            </div>
         </div>
         <div class="col-sm-4">
-            <div class="card"><div class="card-body">
-                <div class="text-secondary">No Expiration Date</div>
-                <div class="h1 mb-0">{{ missing_date }}</div>
-            </div></div>
+            <div class="card card-sm border-top border-3 border-secondary">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-2">
+                        <span class="avatar avatar-sm bg-secondary-lt text-secondary me-3"><i class="fas fa-question"></i></span>
+                        <div class="text-secondary fw-medium" style="font-size:.8rem;">No Expiration Date</div>
+                    </div>
+                    <div class="h1 mb-0 text-secondary">{{ missing_date }}</div>
+                </div>
+            </div>
         </div>
     </div>
 
     <ul class="nav nav-pills mb-4">
         <li class="nav-item">
             <a class="nav-link {% if active_view == 'all' %}active{% endif %}"
-               href="{% url 'seed_expiry' %}">All ({{ at_risk_count }})</a>
+               href="{% url 'seed_expiry' %}">
+               <i class="fas fa-list me-1"></i> All ({{ at_risk_count }})
+            </a>
         </li>
         <li class="nav-item">
             <a class="nav-link {% if active_view == 'soon' %}active{% endif %}"
-               href="{% url 'seed_expiry' %}?view=soon">Expiring soon ({{ expiring_soon|length }})</a>
+               href="{% url 'seed_expiry' %}?view=soon">
+               <i class="fas fa-clock me-1"></i> Expiring Soon ({{ expiring_soon|length }})
+            </a>
         </li>
         <li class="nav-item">
             <a class="nav-link {% if active_view == 'expired' %}active{% endif %}"
-               href="{% url 'seed_expiry' %}?view=expired">Expired ({{ expired|length }})</a>
+               href="{% url 'seed_expiry' %}?view=expired">
+               <i class="fas fa-skull-crossbones me-1"></i> Expired ({{ expired|length }})
+            </a>
         </li>
     </ul>
 
     {% if active_view != 'expired' %}
     <div class="card mb-4">
         <div class="card-header">
-            <h3 class="card-title">Expiring Soon</h3>
+            <h3 class="card-title"><i class="fas fa-clock me-2 text-warning"></i>Expiring Soon</h3>
         </div>
         <div class="table-responsive">
-            <table class="table table-vcenter card-table">
+            <table class="table table-vcenter table-hover card-table">
                 <thead>
                     <tr>
                         <th>Seed Name</th>
@@ -223,20 +326,25 @@
                 <tbody>
                     {% for seed in expiring_soon %}
                     <tr>
-                        <td>{{ seed.seed_name }}</td>
+                        <td><strong>{{ seed.seed_name }}</strong>
+                            {% if seed.variety %}<br><small class="text-muted">{{ seed.variety }}</small>{% endif %}
+                        </td>
                         <td>{{ seed.get_category_display }}</td>
-                        <td>{{ seed.quantity }} {{ seed.get_unit_display }}</td>
+                        <td>{{ seed.quantity }} <span class="text-muted">{{ seed.get_unit_display }}</span></td>
                         <td>{{ seed.storage_location|default:"—" }}</td>
                         <td>
-                            <span class="badge bg-warning text-dark">
-                                {{ seed.expiration_date|date:"M d, Y" }}
+                            <span class="badge bg-warning-lt text-warning fw-semibold">
+                                <i class="fas fa-clock me-1"></i>{{ seed.expiration_date|date:"M d, Y" }}
                             </span>
                         </td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="5" class="text-center py-4">
-                            No seeds are expiring within this window.
+                        <td colspan="5">
+                            <div class="empty py-4">
+                                <div class="empty-icon"><i class="fas fa-circle-check fa-2x text-success"></i></div>
+                                <p class="empty-title text-success">All good! No seeds expiring soon.</p>
+                            </div>
                         </td>
                     </tr>
                     {% endfor %}
@@ -249,10 +357,10 @@
     {% if active_view != 'soon' %}
     <div class="card">
         <div class="card-header">
-            <h3 class="card-title">Expired</h3>
+            <h3 class="card-title"><i class="fas fa-skull-crossbones me-2 text-danger"></i>Expired Seeds</h3>
         </div>
         <div class="table-responsive">
-            <table class="table table-vcenter card-table">
+            <table class="table table-vcenter table-hover card-table">
                 <thead>
                     <tr>
                         <th>Seed Name</th>
@@ -264,21 +372,26 @@
                 </thead>
                 <tbody>
                     {% for seed in expired %}
-                    <tr>
-                        <td>{{ seed.seed_name }}</td>
+                    <tr class="table-danger-lt">
+                        <td><strong>{{ seed.seed_name }}</strong>
+                            {% if seed.variety %}<br><small class="text-muted">{{ seed.variety }}</small>{% endif %}
+                        </td>
                         <td>{{ seed.get_category_display }}</td>
-                        <td>{{ seed.quantity }} {{ seed.get_unit_display }}</td>
+                        <td>{{ seed.quantity }} <span class="text-muted">{{ seed.get_unit_display }}</span></td>
                         <td>{{ seed.storage_location|default:"—" }}</td>
                         <td>
-                            <span class="badge bg-danger text-white">
-                                {{ seed.expiration_date|date:"M d, Y" }}
+                            <span class="badge bg-danger-lt text-danger fw-semibold">
+                                <i class="fas fa-skull-crossbones me-1"></i>{{ seed.expiration_date|date:"M d, Y" }}
                             </span>
                         </td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="5" class="text-center py-4">
-                            No expired seed records.
+                        <td colspan="5">
+                            <div class="empty py-4">
+                                <div class="empty-icon"><i class="fas fa-circle-check fa-2x text-success"></i></div>
+                                <p class="empty-title text-success">No expired seed records.</p>
+                            </div>
                         </td>
                     </tr>
                     {% endfor %}

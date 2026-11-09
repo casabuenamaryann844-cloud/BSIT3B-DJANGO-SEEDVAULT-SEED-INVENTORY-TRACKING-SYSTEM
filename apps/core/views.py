@@ -199,8 +199,15 @@ def login_view(request):
     if request.method == 'GET':
         return render(request, 'auth/login.html')
 
-    username = request.POST.get('username', '').strip()
+    identifier = request.POST.get('username', '').strip()
     password = request.POST.get('password', '')
+    remember_me = request.POST.get('remember_me') == 'on'
+
+    username = identifier
+    if '@' in identifier:
+        match = User.objects.filter(email__iexact=identifier).first()
+        if match is not None:
+            username = match.username
 
     user = authenticate(
         request,
@@ -211,6 +218,7 @@ def login_view(request):
     if user is not None:
         _reset_lock_state(request)
         login(request, user)
+        request.session.set_expiry(14 * 24 * 60 * 60 if remember_me else 0)
         return redirect('dashboard')
 
     failed_attempts += 1
@@ -238,15 +246,6 @@ def login_view(request):
 def logout_view(request):
     logout(request)
     return redirect('login')
-
-
-# WELCOME PAGE
-
-def welcome(request):
-    if request.user.is_authenticated:
-        return redirect('dashboard')
-
-    return render(request, 'welcome.html')
 
 
 # DASHBOARD
@@ -417,7 +416,7 @@ def inventory_export(request):
 @require_http_methods(["GET", "POST"])
 def inventory_create(request):
     if request.method == "POST":
-        form = SeedInventoryForm(request.POST)
+        form = SeedInventoryForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
             messages.success(request, "Seed added successfully!")
@@ -438,7 +437,7 @@ def inventory_create(request):
 @require_http_methods(['GET', 'POST'])
 def inventory_edit(request, pk):
     seed = get_object_or_404(SeedInventory, pk=pk)
-    form = SeedInventoryForm(request.POST or None, instance=seed)
+    form = SeedInventoryForm(request.POST or None, request.FILES or None, instance=seed)
 
     if request.method == 'POST' and form.is_valid():
         form.save()

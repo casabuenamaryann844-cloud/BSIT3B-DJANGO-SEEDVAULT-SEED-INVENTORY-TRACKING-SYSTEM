@@ -18,7 +18,6 @@ class SeedInventory(models.Model):
         ("grams", "Grams"),
         ("kilograms", "Kilograms"),
         ("pieces", "Pieces"),
-
     ]
 
     seed_name = models.CharField(max_length=150)
@@ -27,6 +26,12 @@ class SeedInventory(models.Model):
         max_length=20,
         choices=CATEGORY_CHOICES,
         default="other",
+    )
+    image = models.ImageField(
+        upload_to="seeds/",
+        null=True,
+        blank=True,
+        help_text="Upload seed or packet image for visual identification",
     )
     quantity = models.PositiveIntegerField(default=0)
     unit = models.CharField(
